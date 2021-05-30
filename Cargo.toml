@@ -17,6 +17,10 @@ sync = ["bufstream"]
 async-tokio = ["tokio"]
 
 [[example]]
+name = "snake"
+required-features = ["rand", "sync"]
+
+[[example]]
 name = "speedtest"
 required-features = ["rand", "sync"]
 
