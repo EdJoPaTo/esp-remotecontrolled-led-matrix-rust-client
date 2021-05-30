@@ -1,0 +1,40 @@
+[package]
+name = "esp-wlan-led-matrix-client"
+description = "Control an espPixelmatrix via Rust"
+version = "0.1.0"
+license = "MIT"
+authors = ["EdJoPaTo <esp-wlan-led-matrix-client-rust@edjopato.de>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[profile.release]
+lto = true
+
+[features]
+default = ["sync", "async-tokio"]
+sync = ["bufstream"]
+async-tokio = ["tokio"]
+
+[[example]]
+name = "speedtest"
+required-features = ["rand", "sync"]
+
+[[example]]
+name = "stars"
+required-features = ["rand", "async-tokio"]
+
+[dependencies]
+
+[dependencies.rand]
+version = "0.8"
+optional = true
+
+[dependencies.bufstream]
+version = "0.1"
+optional = true
+
+[dependencies.tokio]
+version = "1"
+features = ["full"]
+optional = true
