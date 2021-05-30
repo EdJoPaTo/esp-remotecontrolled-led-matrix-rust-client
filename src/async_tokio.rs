@@ -90,14 +90,16 @@ impl Client {
             .await
     }
 
-    /// Fill the whole matrix with one color
+    /// Fill the whole matrix with one color.
+    /// Do not forget to also run [flush] afterwards.
     ///
     /// # Errors
     /// Errors when the command could not be sent
+    ///
+    /// [flush]: Self::flush
     pub async fn fill(&mut self, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
         self.stream
             .write_all(&[Command::Fill as u8, red, green, blue])
-            .await?;
-        self.stream.flush().await
+            .await
     }
 }

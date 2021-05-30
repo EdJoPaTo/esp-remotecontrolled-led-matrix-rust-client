@@ -68,13 +68,15 @@ impl Client {
             .write_all(&[Command::Pixel as u8, x, y, red, green, blue])
     }
 
-    /// Fill the whole matrix with one color
+    /// Fill the whole matrix with one color.
+    /// Do not forget to also run [flush] afterwards.
     ///
     /// # Errors
     /// Errors when the command could not be sent
+    ///
+    /// [flush]: Self::flush
     pub fn fill(&mut self, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
         self.stream
-            .write_all(&[Command::Fill as u8, red, green, blue])?;
-        self.stream.flush()
+            .write_all(&[Command::Fill as u8, red, green, blue])
     }
 }
