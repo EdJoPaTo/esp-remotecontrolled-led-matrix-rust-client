@@ -4,6 +4,9 @@ use std::time::Duration;
 use esp_wlan_led_matrix_client::sync::Client;
 use rand::Rng;
 
+const RUN_SLEEP: Duration = Duration::from_millis(200);
+const DECAY_SLEEP: Duration = Duration::from_millis(100);
+
 #[derive(Debug, PartialEq)]
 struct Point {
     x: u8,
@@ -81,63 +84,68 @@ fn main() {
 }
 
 fn snake(client: &mut Client) -> std::io::Result<()> {
-    client.fill(0, 0, 0)?;
     let width = client.width();
     let height = client.height();
-    let mut state = Gamestate::new(width, height);
-
     loop {
-        let next_point = {
-            let start = &state.snake[0];
-            if start.x > state.food.x {
-                Point::new(start.x - 1, start.y)
-            } else if start.x < state.food.x {
-                Point::new(start.x + 1, start.y)
-            } else if start.y > state.food.y {
-                Point::new(start.x, start.y - 1)
-            } else {
-                Point::new(start.x, start.y + 1)
+        let mut state = Gamestate::new(width, height);
+
+        loop {
+            let next_point = {
+                let start = &state.snake[0];
+                if start.x > state.food.x {
+                    Point::new(start.x - 1, start.y)
+                } else if start.x < state.food.x {
+                    Point::new(start.x + 1, start.y)
+                } else if start.y > state.food.y {
+                    Point::new(start.x, start.y - 1)
+                } else {
+                    Point::new(start.x, start.y + 1)
+                }
+            };
+
+            #[cfg(debug_assertions)]
+            println!(
+                "snake goes to {:3} {:3}  food is at {:3} {:3}",
+                next_point.x, next_point.y, state.food.x, state.food.y
+            );
+
+            if state.snake.contains(&next_point) {
+                for point in state.snake {
+                    client.pixel(point.x, point.y, 0, 0, 0)?;
+                    client.flush()?;
+                    sleep(DECAY_SLEEP);
+                }
+
+                client.pixel(state.food.x, state.food.y, 0, 0, 0)?;
+                break;
             }
-        };
 
-        #[cfg(debug_assertions)]
-        println!(
-            "snake goes to {:3} {:3}  food is at {:3} {:3}",
-            next_point.x, next_point.y, state.food.x, state.food.y
-        );
+            if next_point == state.food {
+                state.food = Point::random(width, height);
+            } else {
+                let last = state.snake.pop().unwrap();
+                client.pixel(last.x, last.y, 0, 0, 0)?;
+            }
 
-        if state.snake.contains(&next_point) {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("snake hit itself at length {}", state.snake.len()),
-            ));
+            client.pixel(
+                next_point.x,
+                next_point.y,
+                state.color.0,
+                state.color.1,
+                state.color.2,
+            )?;
+            state.snake.insert(0, next_point);
+
+            client.pixel(
+                state.food.x,
+                state.food.y,
+                255 - state.color.0,
+                255 - state.color.1,
+                255 - state.color.2,
+            )?;
+
+            client.flush()?;
+            sleep(RUN_SLEEP);
         }
-
-        if next_point == state.food {
-            state.food = Point::random(width, height);
-        } else {
-            let last = state.snake.pop().unwrap();
-            client.pixel(last.x, last.y, 0, 0, 0)?;
-        }
-
-        client.pixel(
-            next_point.x,
-            next_point.y,
-            state.color.0,
-            state.color.1,
-            state.color.2,
-        )?;
-        state.snake.insert(0, next_point);
-
-        client.pixel(
-            state.food.x,
-            state.food.y,
-            255 - state.color.0,
-            255 - state.color.1,
-            255 - state.color.2,
-        )?;
-
-        client.flush()?;
-        sleep(Duration::from_millis(200));
     }
 }
