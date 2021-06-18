@@ -97,41 +97,41 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
                 let up = Point::new(start.x, start.y - 1);
                 let down = Point::new(start.x, start.y + 1);
                 if start.x > state.food.x {
-					if !state.snake.contains(left){
+					if !state.snake.contains(&left){
 						left
-					} else if !state.snake.contains(up){
+					} else if !state.snake.contains(&up){
 						up
-					} else if !state.snake.contains(down){
+					} else if !state.snake.contains(&down){
 						down
 					} else {
 						right
 					}
                 } else if start.x < state.food.x {
-					if !state.snake.contains(right){
+					if !state.snake.contains(&right){
 						right
-					} else if !state.snake.contains(down){
+					} else if !state.snake.contains(&down){
 						down
-					} else if !state.snake.contains(up){
+					} else if !state.snake.contains(&up){
 						up
 					} else {
 						left
 					}
                 } else if start.y > state.food.y {
-					if !state.snake.contains(up){
+					if !state.snake.contains(&up){
 						up
-					} else if !state.snake.contains(left){
+					} else if !state.snake.contains(&left){
 						left
-					} else if !state.snake.contains(right){
+					} else if !state.snake.contains(&right){
 						right
 					} else {
 						down
 					}
                 } else {
-					if !state.snake.contains(down){
+					if !state.snake.contains(&down){
 						down
-					} else if !state.snake.contains(right){
+					} else if !state.snake.contains(&right){
 						right
-					} else if !state.snake.contains(left){
+					} else if !state.snake.contains(&left){
 						left
 					} else {
 						up
