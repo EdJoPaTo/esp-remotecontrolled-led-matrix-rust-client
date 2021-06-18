@@ -96,46 +96,47 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
                 let right = Point::new(start.x + 1, start.y);
                 let up = Point::new(start.x, start.y - 1);
                 let down = Point::new(start.x, start.y + 1);
+                #[allow(clippy::if_not_else, clippy::collapsible_else_if)]
                 if start.x > state.food.x {
-					if !state.snake.contains(&left){
-						left
-					} else if !state.snake.contains(&up){
-						up
-					} else if !state.snake.contains(&down){
-						down
-					} else {
-						right
-					}
+                    if !state.snake.contains(&left) {
+                        left
+                    } else if !state.snake.contains(&up) {
+                        up
+                    } else if !state.snake.contains(&down) {
+                        down
+                    } else {
+                        right
+                    }
                 } else if start.x < state.food.x {
-					if !state.snake.contains(&right){
-						right
-					} else if !state.snake.contains(&down){
-						down
-					} else if !state.snake.contains(&up){
-						up
-					} else {
-						left
-					}
+                    if !state.snake.contains(&right) {
+                        right
+                    } else if !state.snake.contains(&down) {
+                        down
+                    } else if !state.snake.contains(&up) {
+                        up
+                    } else {
+                        left
+                    }
                 } else if start.y > state.food.y {
-					if !state.snake.contains(&up){
-						up
-					} else if !state.snake.contains(&left){
-						left
-					} else if !state.snake.contains(&right){
-						right
-					} else {
-						down
-					}
+                    if !state.snake.contains(&up) {
+                        up
+                    } else if !state.snake.contains(&left) {
+                        left
+                    } else if !state.snake.contains(&right) {
+                        right
+                    } else {
+                        down
+                    }
                 } else {
-					if !state.snake.contains(&down){
-						down
-					} else if !state.snake.contains(&right){
-						right
-					} else if !state.snake.contains(&left){
-						left
-					} else {
-						up
-					}
+                    if !state.snake.contains(&down) {
+                        down
+                    } else if !state.snake.contains(&right) {
+                        right
+                    } else if !state.snake.contains(&left) {
+                        left
+                    } else {
+                        up
+                    }
                 }
             };
 
