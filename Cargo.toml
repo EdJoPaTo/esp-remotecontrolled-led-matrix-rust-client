@@ -20,6 +20,10 @@ sync = ["bufstream"]
 async-tokio = ["tokio"]
 
 [[example]]
+name = "fill"
+required-features = ["sync"]
+
+[[example]]
 name = "snake"
 required-features = ["rand", "sync", "bracket-color"]
 
