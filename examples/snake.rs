@@ -76,10 +76,11 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
         loop {
             let next_point = {
                 let head = &snake[0];
+                // Directions wont leave the area. Saturating sub prevents < 0, min() prevents > width/height
                 let left = Point::new(head.x.saturating_sub(1), head.y);
-                let right = Point::new(head.x.saturating_add(1), head.y);
+                let right = Point::new(head.x.saturating_add(1).min(width - 1), head.y);
                 let up = Point::new(head.x, head.y.saturating_sub(1));
-                let down = Point::new(head.x, head.y.saturating_add(1));
+                let down = Point::new(head.x, head.y.saturating_add(1).min(height - 1));
                 #[allow(clippy::if_not_else, clippy::collapsible_else_if)]
                 if head.x > food.x {
                     if !snake.contains(&left) {
@@ -134,8 +135,8 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
                 food.y
             );
 
-            // Hit itself or tried to go over the edge (saturating_sub prevents the upper and left edge)
-            if snake.contains(&next_point) || next_point.x >= width || next_point.y >= height {
+            // Hit itself
+            if snake.contains(&next_point) {
                 println!(
                     "snake length {:3} died at {:3} {:3}",
                     snake.len(),
