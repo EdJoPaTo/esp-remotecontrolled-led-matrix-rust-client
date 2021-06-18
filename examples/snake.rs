@@ -142,13 +142,23 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
 
             #[cfg(debug_assertions)]
             println!(
-                "snake goes to {:3} {:3}  food is at {:3} {:3}",
-                next_point.x, next_point.y, state.food.x, state.food.y
+                "snake length {:3} goes to {:3} {:3}  food is at {:3} {:3}",
+                state.snake.len(),
+                next_point.x,
+                next_point.y,
+                state.food.x,
+                state.food.y
             );
 
             // Hit itself or tried to go over the edge (saturating_sub prevents the upper and left edge)
             if state.snake.contains(&next_point) || next_point.x >= width || next_point.y >= height
             {
+                println!(
+                    "snake length {:3} died at {:3} {:3}",
+                    state.snake.len(),
+                    state.snake.first().unwrap().x,
+                    state.snake.first().unwrap().y,
+                );
                 for point in state.snake {
                     client.pixel(point.x, point.y, 0, 0, 0)?;
                     client.flush()?;
