@@ -92,10 +92,10 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
         loop {
             let next_point = {
                 let start = &state.snake[0];
-                let left = Point::new(start.x - 1, start.y)
-                let right = Point::new(start.x + 1, start.y)
-                let up = Point::new(start.x, start.y - 1)
-                let down = Point::new(start.x, start.y + 1)
+                let left = Point::new(start.x - 1, start.y);
+                let right = Point::new(start.x + 1, start.y);
+                let up = Point::new(start.x, start.y - 1);
+                let down = Point::new(start.x, start.y + 1);
                 if start.x > state.food.x {
 					if !state.snake.contains(left){
 						left
