@@ -27,32 +27,6 @@ impl Point {
     }
 }
 
-struct Gamestate {
-    snake: Vec<Point>,
-    food: Point,
-}
-
-impl Gamestate {
-    fn new(width: u8, height: u8) -> Self {
-        let food = Point::random(width, height);
-
-        let start = Point::new(width / 2, height / 2);
-        let end = {
-            let x = if start.x < food.x {
-                start.x - 1
-            } else {
-                start.x + 1
-            };
-            Point::new(x, start.y)
-        };
-
-        Self {
-            snake: vec![start, end],
-            food,
-        }
-    }
-}
-
 fn main() {
     let addr = "espPixelmatrix:1337";
 
@@ -83,53 +57,66 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
     let width = client.width();
     let height = client.height();
     loop {
-        let mut state = Gamestate::new(width, height);
+        let mut food = Point::random(width, height);
         let mut hue = rand::random::<f32>() % 360.0;
+
+        let mut snake = {
+            let start = Point::new(width / 2, height / 2);
+            let end = {
+                let x = if start.x < food.x {
+                    start.x - 1
+                } else {
+                    start.x + 1
+                };
+                Point::new(x, start.y)
+            };
+            vec![start, end]
+        };
 
         loop {
             let next_point = {
-                let start = &state.snake[0];
-                let left = Point::new(start.x.saturating_sub(1), start.y);
-                let right = Point::new(start.x.saturating_add(1), start.y);
-                let up = Point::new(start.x, start.y.saturating_sub(1));
-                let down = Point::new(start.x, start.y.saturating_add(1));
+                let head = &snake[0];
+                let left = Point::new(head.x.saturating_sub(1), head.y);
+                let right = Point::new(head.x.saturating_add(1), head.y);
+                let up = Point::new(head.x, head.y.saturating_sub(1));
+                let down = Point::new(head.x, head.y.saturating_add(1));
                 #[allow(clippy::if_not_else, clippy::collapsible_else_if)]
-                if start.x > state.food.x {
-                    if !state.snake.contains(&left) {
+                if head.x > food.x {
+                    if !snake.contains(&left) {
                         left
-                    } else if !state.snake.contains(&up) {
+                    } else if !snake.contains(&up) {
                         up
-                    } else if !state.snake.contains(&down) {
+                    } else if !snake.contains(&down) {
                         down
                     } else {
                         right
                     }
-                } else if start.x < state.food.x {
-                    if !state.snake.contains(&right) {
+                } else if head.x < food.x {
+                    if !snake.contains(&right) {
                         right
-                    } else if !state.snake.contains(&down) {
+                    } else if !snake.contains(&down) {
                         down
-                    } else if !state.snake.contains(&up) {
+                    } else if !snake.contains(&up) {
                         up
                     } else {
                         left
                     }
-                } else if start.y > state.food.y {
-                    if !state.snake.contains(&up) {
+                } else if head.y > food.y {
+                    if !snake.contains(&up) {
                         up
-                    } else if !state.snake.contains(&left) {
+                    } else if !snake.contains(&left) {
                         left
-                    } else if !state.snake.contains(&right) {
+                    } else if !snake.contains(&right) {
                         right
                     } else {
                         down
                     }
                 } else {
-                    if !state.snake.contains(&down) {
+                    if !snake.contains(&down) {
                         down
-                    } else if !state.snake.contains(&right) {
+                    } else if !snake.contains(&right) {
                         right
-                    } else if !state.snake.contains(&left) {
+                    } else if !snake.contains(&left) {
                         left
                     } else {
                         up
@@ -140,36 +127,35 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
             #[cfg(debug_assertions)]
             println!(
                 "snake length {:3} goes to {:3} {:3}  food is at {:3} {:3}",
-                state.snake.len(),
+                snake.len(),
                 next_point.x,
                 next_point.y,
-                state.food.x,
-                state.food.y
+                food.x,
+                food.y
             );
 
             // Hit itself or tried to go over the edge (saturating_sub prevents the upper and left edge)
-            if state.snake.contains(&next_point) || next_point.x >= width || next_point.y >= height
-            {
+            if snake.contains(&next_point) || next_point.x >= width || next_point.y >= height {
                 println!(
                     "snake length {:3} died at {:3} {:3}",
-                    state.snake.len(),
-                    state.snake.first().unwrap().x,
-                    state.snake.first().unwrap().y,
+                    snake.len(),
+                    snake.first().unwrap().x,
+                    snake.first().unwrap().y,
                 );
-                for point in state.snake {
+                for point in snake {
                     client.pixel(point.x, point.y, 0, 0, 0)?;
                     client.flush()?;
                     sleep(DECAY_SLEEP);
                 }
 
-                client.pixel(state.food.x, state.food.y, 0, 0, 0)?;
+                client.pixel(food.x, food.y, 0, 0, 0)?;
                 break;
             }
 
-            if next_point == state.food {
-                state.food = Point::random(width, height);
+            if next_point == food {
+                food = Point::random(width, height);
             } else {
-                let last = state.snake.pop().unwrap();
+                let last = snake.pop().unwrap();
                 client.pixel(last.x, last.y, 0, 0, 0)?;
             }
 
@@ -178,11 +164,11 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
                 let (r, g, b) = hue_to_rgb(hue);
                 client.pixel(next_point.x, next_point.y, r, g, b)?;
             }
-            state.snake.insert(0, next_point);
+            snake.insert(0, next_point);
 
             {
                 let (r, g, b) = hue_to_rgb((hue + 180.0) % 360.0);
-                client.pixel(state.food.x, state.food.y, r, g, b)?;
+                client.pixel(food.x, food.y, r, g, b)?;
             }
 
             client.flush()?;
