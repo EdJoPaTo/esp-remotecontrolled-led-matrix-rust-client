@@ -92,14 +92,51 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
         loop {
             let next_point = {
                 let start = &state.snake[0];
+                let left = Point::new(start.x.saturating_sub(1), start.y);
+                let right = Point::new(start.x.saturating_add(1), start.y);
+                let up = Point::new(start.x, start.y.saturating_sub(1));
+                let down = Point::new(start.x, start.y.saturating_add(1));
+                #[allow(clippy::if_not_else, clippy::collapsible_else_if)]
                 if start.x > state.food.x {
-                    Point::new(start.x - 1, start.y)
+                    if !state.snake.contains(&left) {
+                        left
+                    } else if !state.snake.contains(&up) {
+                        up
+                    } else if !state.snake.contains(&down) {
+                        down
+                    } else {
+                        right
+                    }
                 } else if start.x < state.food.x {
-                    Point::new(start.x + 1, start.y)
+                    if !state.snake.contains(&right) {
+                        right
+                    } else if !state.snake.contains(&down) {
+                        down
+                    } else if !state.snake.contains(&up) {
+                        up
+                    } else {
+                        left
+                    }
                 } else if start.y > state.food.y {
-                    Point::new(start.x, start.y - 1)
+                    if !state.snake.contains(&up) {
+                        up
+                    } else if !state.snake.contains(&left) {
+                        left
+                    } else if !state.snake.contains(&right) {
+                        right
+                    } else {
+                        down
+                    }
                 } else {
-                    Point::new(start.x, start.y + 1)
+                    if !state.snake.contains(&down) {
+                        down
+                    } else if !state.snake.contains(&right) {
+                        right
+                    } else if !state.snake.contains(&left) {
+                        left
+                    } else {
+                        up
+                    }
                 }
             };
 
@@ -109,7 +146,9 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
                 next_point.x, next_point.y, state.food.x, state.food.y
             );
 
-            if state.snake.contains(&next_point) {
+            // Hit itself or tried to go over the edge (saturating_sub prevents the upper and left edge)
+            if state.snake.contains(&next_point) || next_point.x >= width || next_point.y >= height
+            {
                 for point in state.snake {
                     client.pixel(point.x, point.y, 0, 0, 0)?;
                     client.flush()?;
