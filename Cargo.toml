@@ -18,7 +18,7 @@ async-tokio = ["tokio"]
 
 [[example]]
 name = "snake"
-required-features = ["rand", "sync"]
+required-features = ["rand", "sync", "bracket-color"]
 
 [[example]]
 name = "speedtest"
@@ -30,12 +30,16 @@ required-features = ["rand", "async-tokio"]
 
 [dependencies]
 
-[dependencies.rand]
+[dependencies.bracket-color]
 version = "0.8"
 optional = true
 
 [dependencies.bufstream]
 version = "0.1"
+optional = true
+
+[dependencies.rand]
+version = "0.8"
 optional = true
 
 [dependencies.tokio]

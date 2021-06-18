@@ -1,6 +1,7 @@
 use std::thread::sleep;
 use std::time::Duration;
 
+use bracket_color::prelude::HSV;
 use esp_wlan_led_matrix_client::sync::Client;
 use rand::Rng;
 
@@ -29,7 +30,6 @@ impl Point {
 struct Gamestate {
     snake: Vec<Point>,
     food: Point,
-    color: (u8, u8, u8),
 }
 
 impl Gamestate {
@@ -46,14 +46,9 @@ impl Gamestate {
             Point::new(x, start.y)
         };
 
-        let r = rand::random::<u8>();
-        let g = rand::random::<u8>();
-        let b = rand::random::<u8>();
-
         Self {
             snake: vec![start, end],
             food,
-            color: (r, g, b),
         }
     }
 }
@@ -83,11 +78,13 @@ fn main() {
     }
 }
 
+#[allow(clippy::too_many_lines)]
 fn snake(client: &mut Client) -> std::io::Result<()> {
     let width = client.width();
     let height = client.height();
     loop {
         let mut state = Gamestate::new(width, height);
+        let mut hue = rand::random::<f32>() % 360.0;
 
         loop {
             let next_point = {
@@ -176,25 +173,34 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
                 client.pixel(last.x, last.y, 0, 0, 0)?;
             }
 
-            client.pixel(
-                next_point.x,
-                next_point.y,
-                state.color.0,
-                state.color.1,
-                state.color.2,
-            )?;
+            hue = (hue + 5.0) % 360.0;
+            {
+                let (r, g, b) = hue_to_rgb(hue);
+                client.pixel(next_point.x, next_point.y, r, g, b)?;
+            }
             state.snake.insert(0, next_point);
 
-            client.pixel(
-                state.food.x,
-                state.food.y,
-                255 - state.color.0,
-                255 - state.color.1,
-                255 - state.color.2,
-            )?;
+            {
+                let (r, g, b) = hue_to_rgb((hue + 180.0) % 360.0);
+                client.pixel(state.food.x, state.food.y, r, g, b)?;
+            }
 
             client.flush()?;
             sleep(RUN_SLEEP);
         }
     }
+}
+
+/// Converts from f32 Hue to u8 rgb values
+/// * `hue` - Hue from 0.0 to 360.0
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+fn hue_to_rgb(hue: f32) -> (u8, u8, u8) {
+    let hsv = HSV::from_f32(hue / 360.0, 1.0, 1.0);
+    let rgb = hsv.to_rgb();
+
+    let red = (rgb.r * 255.0) as u8;
+    let green = (rgb.g * 255.0) as u8;
+    let blue = (rgb.b * 255.0) as u8;
+
+    (red, green, blue)
 }
