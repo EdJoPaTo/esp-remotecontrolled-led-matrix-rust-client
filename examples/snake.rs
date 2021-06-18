@@ -147,7 +147,8 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
             );
 
             // Hit itself or tried to go over the edge (saturating_sub prevents the upper and left edge)
-            if state.snake.contains(&next_point) || next_point.x > width || next_point.y > height {
+            if state.snake.contains(&next_point) || next_point.x >= width || next_point.y >= height
+            {
                 for point in state.snake {
                     client.pixel(point.x, point.y, 0, 0, 0)?;
                     client.flush()?;
