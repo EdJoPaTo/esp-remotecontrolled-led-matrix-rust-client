@@ -3,6 +3,7 @@ name = "esp-wlan-led-matrix-client"
 description = "Control an espPixelmatrix via Rust"
 version = "0.1.0"
 license = "MIT"
+repository = "https://github.com/EdJoPaTo/esp-wlan-led-matrix-client"
 authors = ["EdJoPaTo <esp-wlan-led-matrix-client-rust@edjopato.de>"]
 edition = "2018"
 
