@@ -27,6 +27,54 @@ impl Point {
     }
 }
 
+struct Directions {
+    left: bool,
+    right: bool,
+    up: bool,
+    down: bool,
+}
+
+impl Directions {
+    fn new(left: bool, right: bool, up: bool, down: bool) -> Self {
+        Self { left, right, up, down }
+    }
+
+    fn join(first: Directions, second: Directions) -> Self {
+        Self {
+            first.left && second.left,
+            first.right && second.right,
+            first.up && second.up,
+            first.down && second.down,
+        }
+    }
+
+    // fn one(directions: Directions) -> (bool) {
+    //     let result =
+    //     directions.left && !directions.right && !directions.up && !directions.down ||
+    //     !directions.left && directions.right && !directions.up && !directions.down ||
+    //     !directions.left && !directions.right && directions.up && !directions.down ||
+    //     !directions.left && !directions.right && !directions.up && directions.down
+    //     (result)
+    // }
+    fn count(directions: Directions) -> (u8) {
+        let result = {
+            if directions.left{
+                result += 1
+            }
+            if directions.right{
+                result += 1
+            }
+            if directions.up{
+                result += 1
+            }
+            if directions.down{
+                result += 1
+            }
+        }
+        (result)
+    }
+}
+
 fn main() {
     let addr = "espPixelmatrix:1337";
 
@@ -73,56 +121,201 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
             vec![start, end]
         };
 
+        // let previous_priority =
+        // Directions::new(
+        //     start.x > food.x,
+        //     start.x < food.x,
+        //     false,
+        //     false,
+        // )
+        // let prio = true;
+        let previous = {
+            if snake[0].x < snake[1].x {
+                "l"
+            } else if snake[0].x > snake[1].x {
+                "r";
+            }
+        };
+
         loop {
             let next_point = {
                 let head = &snake[0];
+                let neck = &snake[1];
                 // Directions wont leave the area. Saturating sub prevents < 0, min() prevents > width/height
                 let left = Point::new(head.x.saturating_sub(1), head.y);
-                let right = Point::new(head.x.saturating_add(1).min(width - 1), head.y);
+                let right = Point::new(head.x.max(width - 1), head.y);
                 let up = Point::new(head.x, head.y.saturating_sub(1));
-                let down = Point::new(head.x, head.y.saturating_add(1).min(height - 1));
-                #[allow(clippy::if_not_else, clippy::collapsible_else_if)]
-                if head.x > food.x {
-                    if !snake.contains(&left) {
-                        left
-                    } else if !snake.contains(&up) {
-                        up
-                    } else if !snake.contains(&down) {
-                        down
-                    } else {
-                        right
+                let down = Point::new(head.x, head.y.max(height - 1));
+
+                let possible =
+                Directions::new(
+                    !snake.contains(&left),
+                    !snake.contains(&right),
+                    !snake.contains(&up),
+                    !snake.contains(&down),
+                );
+                let desired =
+                Directions::new(
+                    head.x > food.x,
+                    head.x < food.x,
+                    head.y > food.y,
+                    head.y < food.y,
+                );
+                // let priority =
+                // Directions::new(
+                //     head.y == food.y && head.x > food.x || prio && start.x > food.x,
+                //     head.y == food.y && head.x < food.x || prio && start.x < food.x,
+                //     head.x == food.x && head.y > food.y,
+                //     head.x == food.x && head.y < food.y,
+                // );
+                let priority =
+                Directions::new(
+                    head.y == food.y && head.x > food.x,// || prio && start.x > food.x,
+                    head.y == food.y && head.x < food.x,// || prio && start.x < food.x,
+                    head.x == food.x && head.y > food.y,
+                    head.x == food.x && head.y < food.y,
+                );
+                //prio = false;
+                previous = {
+                    if head.x < neck.x && !previous.starts_with('l') {
+                        "l{}", previous
+                    } else if head.x > neck.x && !previous.starts_with('r') {
+                        "r{}", previous
+                    } else if head.y < neck.y && !previous.starts_with('u') {
+                        "u{}", previous
+                    } else if head.y > neck.y && !previous.starts_with('d') {
+                        "d{}", previous
                     }
-                } else if head.x < food.x {
-                    if !snake.contains(&right) {
-                        right
-                    } else if !snake.contains(&down) {
-                        down
-                    } else if !snake.contains(&up) {
-                        up
-                    } else {
+                };
+
+                let possible_desired =
+                Directions::join(
+                    possible, desired
+                );
+                // let success = {
+                //     Directions::one(
+                //         possible_desired
+                //     )
+                // };
+
+                let fast_success = Directions::count(possible_desired);
+                // if success {
+                if fast_success == 1 {
+                    if possible_desired.left{
                         left
+                    } else if possible_desired.right{
+                        right
+                    } else if possible_desired.up{
+                        up
+                    } else if possible_desired.down{
+                        down
                     }
-                } else if head.y > food.y {
-                    if !snake.contains(&up) {
-                        up
-                    } else if !snake.contains(&left) {
-                        left
-                    } else if !snake.contains(&right) {
-                        right
-                    } else {
-                        down
-                    }
-                } else {
-                    if !snake.contains(&down) {
-                        down
-                    } else if !snake.contains(&right) {
-                        right
-                    } else if !snake.contains(&left) {
-                        left
-                    } else {
-                        up
+                    else {
+                        println!("check ur code! #1");
                     }
                 }
+                else if fast_success > 1 {
+                    let possible_desired_priority =
+                    Directions::join(
+                        possible_desired, priority
+                    );
+                    let normal_success = Directions::count(possible_desired_priority);
+                    if normal_success == 1 {
+                        if possible_desired_priority.left{
+                            left
+                        } else if possible_desired_priority.right{
+                            right
+                        } else if possible_desired_priority.up{
+                            up
+                        } else if possible_desired_priority.down{
+                            down
+                        }
+                        else {
+                            println!("check ur code! #2");
+                        }
+                    } else{
+                        println!("check ur code! #3");
+                    }
+                } else{
+                    if previous[0] == 'l' && possible.left{
+                        left
+                    } else if previous[0] == 'r' && possible.right{
+                        right
+                    } else if previous[0] == 'u' && possible.up{
+                        up
+                    } else if previous[0] == 'd' && possible.down{
+                        down
+                    } else if previous[1] == 'l' && possible.left{
+                        left
+                    } else if previous[1] == 'r' && possible.right{
+                        right
+                    } else if previous[1] == 'u' && possible.up{
+                        up
+                    } else if previous[1] == 'd' && possible.down{
+                        down
+                    } else if previous[2] == 'l' && possible.left{
+                        left
+                    } else if previous[2] == 'r' && possible.right{
+                        right
+                    } else if previous[2] == 'u' && possible.up{
+                        up
+                    } else if previous[2] == 'd' && possible.down{
+                        down
+                    } else if previous[3] == 'l' && possible.left{
+                        left
+                    } else if previous[3] == 'r' && possible.right{
+                        right
+                    } else if previous[3] == 'u' && possible.up{
+                        up
+                    } else if previous[3] == 'd' && possible.down{
+                        down
+                    } else{
+                        println!("check ur code! #4");
+                    }
+                }
+
+                // #[allow(clippy::if_not_else, clippy::collapsible_else_if)]
+                // if head.x > food.x {
+                //     if !snake.contains(&left) {
+                //         left
+                //     } else if !snake.contains(&up) {
+                //         up
+                //     } else if !snake.contains(&down) {
+                //         down
+                //     } else {
+                //         right
+                //     }
+                // } else if head.x < food.x {
+                //     if !snake.contains(&right) {
+                //         right
+                //     } else if !snake.contains(&down) {
+                //         down
+                //     } else if !snake.contains(&up) {
+                //         up
+                //     } else {
+                //         left
+                //     }
+                // } else if head.y > food.y {
+                //     if !snake.contains(&up) {
+                //         up
+                //     } else if !snake.contains(&left) {
+                //         left
+                //     } else if !snake.contains(&right) {
+                //         right
+                //     } else {
+                //         down
+                //     }
+                // } else {
+                //     if !snake.contains(&down) {
+                //         down
+                //     } else if !snake.contains(&right) {
+                //         right
+                //     } else if !snake.contains(&left) {
+                //         left
+                //     } else {
+                //         up
+                //     }
+                // }
             };
 
             #[cfg(debug_assertions)]
