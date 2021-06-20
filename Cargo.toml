@@ -25,7 +25,7 @@ required-features = ["sync"]
 
 [[example]]
 name = "snake"
-required-features = ["rand", "sync", "bracket-color"]
+required-features = ["rand", "sync", "bracket-color", "snake-logic"]
 
 [[example]]
 name = "speedtest"
@@ -52,4 +52,9 @@ optional = true
 [dependencies.tokio]
 version = "1"
 features = ["full"]
+optional = true
+
+[dependencies.snake-logic]
+#path = "../snake-logic"
+git = "https://github.com/EdJoPaTo/snake-logic"
 optional = true

@@ -3,29 +3,10 @@ use std::time::Duration;
 
 use bracket_color::prelude::HSV;
 use esp_wlan_led_matrix_client::sync::Client;
-use rand::Rng;
+use snake_logic::{get_next_point, Point};
 
 const RUN_SLEEP: Duration = Duration::from_millis(200);
 const DECAY_SLEEP: Duration = Duration::from_millis(100);
-
-#[derive(Debug, PartialEq)]
-struct Point {
-    x: u8,
-    y: u8,
-}
-
-impl Point {
-    fn new(x: u8, y: u8) -> Self {
-        Self { x, y }
-    }
-
-    fn random(width: u8, height: u8) -> Self {
-        let mut rng = rand::thread_rng();
-        let x = rng.gen_range(0..width - 1);
-        let y = rng.gen_range(0..height - 1);
-        Self { x, y }
-    }
-}
 
 fn main() {
     let addr = "espPixelmatrix:1337";
@@ -52,7 +33,23 @@ fn main() {
     }
 }
 
-#[allow(clippy::too_many_lines)]
+fn do_death(client: &mut Client, snake: &[Point], food: &Point) -> std::io::Result<()> {
+    println!(
+        "snake length {:3} died at {:3} {:3}",
+        snake.len(),
+        snake.first().unwrap().x,
+        snake.first().unwrap().y,
+    );
+    for point in snake {
+        client.pixel(point.x, point.y, 0, 0, 0)?;
+        client.flush()?;
+        sleep(DECAY_SLEEP);
+    }
+
+    client.pixel(food.x, food.y, 0, 0, 0)?;
+    Ok(())
+}
+
 fn snake(client: &mut Client) -> std::io::Result<()> {
     let width = client.width();
     let height = client.height();
@@ -74,55 +71,17 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
         };
 
         loop {
-            let next_point = {
-                let head = &snake[0];
-                // Directions wont leave the area. Saturating sub prevents < 0, min() prevents > width/height
-                let left = Point::new(head.x.saturating_sub(1), head.y);
-                let right = Point::new(head.x.saturating_add(1).min(width - 1), head.y);
-                let up = Point::new(head.x, head.y.saturating_sub(1));
-                let down = Point::new(head.x, head.y.saturating_add(1).min(height - 1));
-                #[allow(clippy::if_not_else, clippy::collapsible_else_if)]
-                if head.x > food.x {
-                    if !snake.contains(&left) {
-                        left
-                    } else if !snake.contains(&up) {
-                        up
-                    } else if !snake.contains(&down) {
-                        down
-                    } else {
-                        right
-                    }
-                } else if head.x < food.x {
-                    if !snake.contains(&right) {
-                        right
-                    } else if !snake.contains(&down) {
-                        down
-                    } else if !snake.contains(&up) {
-                        up
-                    } else {
-                        left
-                    }
-                } else if head.y > food.y {
-                    if !snake.contains(&up) {
-                        up
-                    } else if !snake.contains(&left) {
-                        left
-                    } else if !snake.contains(&right) {
-                        right
-                    } else {
-                        down
-                    }
-                } else {
-                    if !snake.contains(&down) {
-                        down
-                    } else if !snake.contains(&right) {
-                        right
-                    } else if !snake.contains(&left) {
-                        left
-                    } else {
-                        up
-                    }
+            let next_point = if let Some(point) = get_next_point(&snake, &food, height, width) {
+                // Hits itself
+                if snake.contains(&point) {
+                    do_death(client, &snake, &food)?;
+                    break;
                 }
+
+                point
+            } else {
+                do_death(client, &snake, &food)?;
+                break;
             };
 
             #[cfg(debug_assertions)]
@@ -134,24 +93,6 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
                 food.x,
                 food.y
             );
-
-            // Hit itself
-            if snake.contains(&next_point) {
-                println!(
-                    "snake length {:3} died at {:3} {:3}",
-                    snake.len(),
-                    snake.first().unwrap().x,
-                    snake.first().unwrap().y,
-                );
-                for point in snake {
-                    client.pixel(point.x, point.y, 0, 0, 0)?;
-                    client.flush()?;
-                    sleep(DECAY_SLEEP);
-                }
-
-                client.pixel(food.x, food.y, 0, 0, 0)?;
-                break;
-            }
 
             if next_point == food {
                 food = Point::random(width, height);
