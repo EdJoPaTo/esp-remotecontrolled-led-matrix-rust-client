@@ -71,7 +71,7 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
         };
 
         loop {
-            let next_point = if let Some(point) = get_next_point(&snake, &food, height, width) {
+            let next_point = if let Some(point) = get_next_point(width, height, &snake, &food) {
                 // Hits itself
                 if snake.contains(&point) {
                     do_death(client, &snake, &food)?;
