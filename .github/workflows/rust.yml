@@ -64,7 +64,7 @@ jobs:
           command: test
           args: --verbose --all-features
 
-  release:
+  github-release:
     name: Release ${{ matrix.triple }}
     runs-on: ${{ matrix.os }}
     needs: test
@@ -101,7 +101,7 @@ jobs:
           target: ${{ matrix.triple }}
           toolchain: stable
 
-      - name: Build release
+      - name: Build
         uses: actions-rs/cargo@v1
         env:
           # TODO: Remove this once it's the default
