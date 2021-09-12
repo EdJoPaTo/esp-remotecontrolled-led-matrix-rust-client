@@ -57,5 +57,5 @@ optional = true
 [dependencies.snake-logic]
 # path = "../snake-logic"
 git = "https://github.com/EdJoPaTo/snake-logic"
-tag = "v0.2.1"
+tag = "v0.3.0"
 optional = true

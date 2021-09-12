@@ -33,7 +33,7 @@ fn main() {
     }
 }
 
-fn do_death(client: &mut Client, snake: &[Point], food: &Point) -> std::io::Result<()> {
+fn do_death(client: &mut Client, snake: &[Point], food: Point) -> std::io::Result<()> {
     println!(
         "snake length {:3} died at {:3} {:3}",
         snake.len(),
@@ -71,16 +71,16 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
         };
 
         loop {
-            let next_point = if let Some(point) = get_next_point(width, height, &snake, &food) {
+            let next_point = if let Some(point) = get_next_point(width, height, &snake, food) {
                 // Hits itself
                 if snake.contains(&point) {
-                    do_death(client, &snake, &food)?;
+                    do_death(client, &snake, food)?;
                     break;
                 }
 
                 point
             } else {
-                do_death(client, &snake, &food)?;
+                do_death(client, &snake, food)?;
                 break;
             };
 
