@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Check the 3 platforms and ensure there is not even a single warning
+          # Check stable on the main platforms and ensure there is not even a single warning
           - os: ubuntu-latest
             toolchain: stable
             clippyargs: -D clippy::pedantic -D warnings
@@ -24,7 +24,10 @@ jobs:
             toolchain: stable
             clippyargs: -D clippy::pedantic -D warnings
 
-          # Check nightly (potentially buggy -> continue-on-error) and maybe get some glances on soon to be lints
+          # Check future versions and maybe get some glances on soon to be lints
+          - os: ubuntu-latest
+            toolchain: beta
+            clippyargs: -W clippy::pedantic
           - os: ubuntu-latest
             toolchain: nightly
             clippyargs: -W clippy::pedantic
@@ -32,18 +35,13 @@ jobs:
           # Check if it is still running on older Rust versions.
           # Sometimes they dont have lint bugfixes which results in false positives -> Dont error, just warn.
           # Also some specified lints are not yet existing in the older rust version -> allow unknown lints.
-          # - os: ubuntu-latest
-          #   toolchain: 1.41.1 # Debian 10 Buster
-          #   clippyargs: -W clippy::pedantic -A unknown-lints -A clippy::unknown-clippy-lints
           - os: ubuntu-latest
             toolchain: 1.48.0 # Debian 11 Bullseye
-            clippyargs: -W clippy::pedantic -A unknown-lints -A clippy::unknown-clippy-lints
+            clippyargs: -A unknown-lints -A clippy::unknown-clippy-lints
           - os: ubuntu-latest
             toolchain: 1.52.0 # Alpine 3.14
-            clippyargs: -W clippy::pedantic -A unknown-lints
+            clippyargs: -A unknown-lints
     steps:
-      - uses: actions/checkout@v2
-
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -51,6 +49,8 @@ jobs:
           override: true
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
+
+      - uses: actions/checkout@v2
 
       - name: Run clippy
         uses: actions-rs/cargo@v1
@@ -91,8 +91,6 @@ jobs:
           - os: windows-latest
             triple: aarch64-pc-windows-msvc
     steps:
-      - uses: actions/checkout@v2
-
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -100,6 +98,8 @@ jobs:
           profile: minimal
           target: ${{ matrix.triple }}
           toolchain: stable
+
+      - uses: actions/checkout@v2
 
       - name: Build
         uses: actions-rs/cargo@v1
