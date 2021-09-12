@@ -5,6 +5,7 @@ use rand::Rng;
 use tokio::task;
 use tokio::time::sleep;
 
+#[allow(clippy::semicolon_if_nothing_returned)] // false positive
 #[tokio::main]
 async fn main() {
     let addr = "espPixelmatrix:1337";
