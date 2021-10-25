@@ -18,6 +18,7 @@ lto = true
 default = ["sync", "async-tokio"]
 sync = ["bufstream"]
 async-tokio = ["tokio"]
+embedded-graphics-impl = ["embedded-graphics", "sync"]
 
 [[example]]
 name = "fill"
@@ -45,13 +46,12 @@ optional = true
 version = "0.1"
 optional = true
 
-[dependencies.rand]
-version = "0.8"
+[dependencies.embedded-graphics]
+version = "0.7"
 optional = true
 
-[dependencies.tokio]
-version = "1"
-features = ["full"]
+[dependencies.rand]
+version = "0.8"
 optional = true
 
 [dependencies.snake-logic]
@@ -59,3 +59,8 @@ optional = true
 git = "https://github.com/EdJoPaTo/snake-logic"
 tag = "v0.3.0"
 optional = true
+
+[dependencies.tokio]
+version = "1"
+optional = true
+features = ["full"]
