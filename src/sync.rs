@@ -34,18 +34,18 @@ impl Client {
     }
 
     #[must_use]
-    pub fn width(&self) -> u8 {
+    pub const fn width(&self) -> u8 {
         self.width
     }
 
     #[must_use]
-    pub fn height(&self) -> u8 {
+    pub const fn height(&self) -> u8 {
         self.height
     }
 
     #[must_use]
-    pub fn total_pixels(&self) -> u16 {
-        u16::from(self.width) * u16::from(self.height)
+    pub const fn total_pixels(&self) -> u16 {
+        (self.width as u16) * (self.height as u16)
     }
 
     /// Flushes the internal buffer and sends everything to the server
