@@ -6,7 +6,6 @@ license = "MIT"
 repository = "https://github.com/EdJoPaTo/esp-wlan-led-matrix-client"
 authors = ["EdJoPaTo <esp-wlan-led-matrix-client-rust@edjopato.de>"]
 edition = "2018"
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [profile.release]
@@ -26,21 +25,17 @@ required-features = ["sync"]
 
 [[example]]
 name = "snake"
-required-features = ["rand", "sync", "bracket-color", "snake-logic"]
+required-features = ["sync"]
 
 [[example]]
 name = "speedtest"
-required-features = ["rand", "sync"]
+required-features = ["sync"]
 
 [[example]]
 name = "stars"
-required-features = ["rand", "async-tokio"]
+required-features = ["async-tokio"]
 
 [dependencies]
-
-[dependencies.bracket-color]
-version = "0.8"
-optional = true
 
 [dependencies.bufstream]
 version = "0.1"
@@ -50,17 +45,16 @@ optional = true
 version = "0.7"
 optional = true
 
-[dependencies.rand]
-version = "0.8"
-optional = true
-
-[dependencies.snake-logic]
-# path = "../snake-logic"
-git = "https://github.com/EdJoPaTo/snake-logic"
-tag = "v0.3.0"
-optional = true
-
 [dependencies.tokio]
 version = "1"
 optional = true
 features = ["full"]
+
+[dev-dependencies]
+bracket-color = "0.8"
+rand = "0.8"
+
+[dev-dependencies.snake-logic]
+# path = "../snake-logic"
+git = "https://github.com/EdJoPaTo/snake-logic"
+tag = "v0.3.0"
