@@ -79,6 +79,36 @@ impl Client {
         self.stream
             .write_all(&[Command::Fill as u8, red, green, blue])
     }
+
+    #[allow(clippy::too_many_arguments)]
+    /// Fill the given rectangular area with one color.
+    /// Do not forget to also run [flush] afterwards.
+    ///
+    /// # Errors
+    /// Errors when the command could not be sent
+    ///
+    /// [flush]: Self::flush
+    pub fn rectangle(
+        &mut self,
+        x: u8,
+        y: u8,
+        width: u8,
+        height: u8,
+        red: u8,
+        green: u8,
+        blue: u8,
+    ) -> std::io::Result<()> {
+        self.stream.write_all(&[
+            Command::Rectangle as u8,
+            x,
+            y,
+            width,
+            height,
+            red,
+            green,
+            blue,
+        ])
+    }
 }
 
 #[cfg(feature = "embedded-graphics")]

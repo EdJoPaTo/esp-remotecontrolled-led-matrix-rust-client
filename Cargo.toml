@@ -24,6 +24,10 @@ name = "fill"
 required-features = ["sync"]
 
 [[example]]
+name = "rectangle"
+required-features = ["sync"]
+
+[[example]]
 name = "snake"
 required-features = ["sync"]
 

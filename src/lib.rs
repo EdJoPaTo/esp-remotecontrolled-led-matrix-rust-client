@@ -9,4 +9,5 @@ pub mod sync;
 pub enum Command {
     Fill = 1,
     Pixel = 2,
+    Rectangle = 3,
 }
