@@ -58,7 +58,15 @@ fn speedtest(client: &mut Client) -> std::io::Result<()> {
         let pixel_per_second = (pixel_wrote as f64) / start.elapsed().as_secs_f64();
         let screens_per_second =
             (pixel_wrote / total_pixels) as f64 / start.elapsed().as_secs_f64();
+        let kb_per_second = pixel_per_second * 6.0 / 1024.0;
 
-        println!("{:6.1}s since start; took {:9.2} ms for a screen; Average:{:12.1} pixels / second {:9.3} screens / second", start.elapsed().as_secs_f64(), took.as_secs_f64() * 1000.0, pixel_per_second, screens_per_second);
+        println!(
+            "{:6.1}s since start; took {:9.2} ms for a screen; Average:{:12.1} pixels / second {:9.3} screens / second {:9.3} kB/s",
+            start.elapsed().as_secs_f64(),
+            took.as_secs_f64() * 1000.0,
+            pixel_per_second,
+            screens_per_second,
+            kb_per_second,
+        );
     }
 }
