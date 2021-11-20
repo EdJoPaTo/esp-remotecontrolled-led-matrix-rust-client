@@ -3,11 +3,13 @@ use std::time::Instant;
 use esp_wlan_led_matrix_client::sync::Client;
 
 fn main() {
-    let addr = "espPixelmatrix:1337";
+    let addr = std::env::var("ADDR");
+    let addr = addr.as_deref().unwrap_or("espPixelmatrix:1337");
     let mut client = Client::connect(addr).expect("connection error");
 
     println!(
-        "size {}x{} = {} pixels",
+        "{} size {}x{} = {} pixels",
+        addr,
         client.width(),
         client.height(),
         client.total_pixels()

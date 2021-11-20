@@ -9,7 +9,8 @@ const RUN_SLEEP: Duration = Duration::from_millis(200);
 const DECAY_SLEEP: Duration = Duration::from_millis(100);
 
 fn main() {
-    let addr = "espPixelmatrix:1337";
+    let addr = std::env::var("ADDR");
+    let addr = addr.as_deref().unwrap_or("espPixelmatrix:1337");
 
     loop {
         match Client::connect(addr) {
