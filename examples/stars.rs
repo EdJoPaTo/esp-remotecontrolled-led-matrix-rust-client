@@ -8,25 +8,32 @@ use tokio::time::sleep;
 #[allow(clippy::semicolon_if_nothing_returned)] // false positive
 #[tokio::main]
 async fn main() {
-    let addr = "espPixelmatrix:1337";
+    let addr = std::env::var("ADDR");
+    let addr = addr.as_deref().unwrap_or("espPixelmatrix:1337");
 
-    task::spawn(async move {
-        loop {
-            if let Err(err) = stars(addr).await {
-                println!("pixelflut_stars ERROR {}", err);
+    {
+        let addr = addr.to_string();
+        task::spawn(async move {
+            loop {
+                if let Err(err) = stars(&addr).await {
+                    println!("pixelflut_stars ERROR {}", err);
+                }
+                sleep(Duration::from_secs(5)).await;
             }
-            sleep(Duration::from_secs(5)).await;
-        }
-    });
+        });
+    }
 
-    let handle = task::spawn(async move {
-        loop {
-            if let Err(err) = stars(addr).await {
-                println!("pixelflut_stars ERROR {}", err);
+    let handle = {
+        let addr = addr.to_string();
+        task::spawn(async move {
+            loop {
+                if let Err(err) = stars(&addr).await {
+                    println!("pixelflut_stars ERROR {}", err);
+                }
+                sleep(Duration::from_secs(5)).await;
             }
-            sleep(Duration::from_secs(5)).await;
-        }
-    });
+        })
+    };
 
     // wait for the task to end which runds in an endless loop
     handle.await.unwrap();
