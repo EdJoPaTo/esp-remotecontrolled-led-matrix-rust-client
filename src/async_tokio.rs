@@ -21,27 +21,9 @@ impl Client {
         let stream = TcpStream::connect(addr).await?;
         let mut stream = BufStream::new(stream);
 
-        let width = {
-            let mut buf = [0; 1];
-            if 1 != stream.read(&mut buf).await? {
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    "failed to receive width",
-                ));
-            }
-            buf[0]
-        };
-
-        let height = {
-            let mut buf = [0; 1];
-            if 1 != stream.read(&mut buf).await? {
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    "failed to receive height",
-                ));
-            }
-            buf[0]
-        };
+        let mut buf = [0; 2];
+        stream.read_exact(&mut buf).await?;
+        let [width, height] = buf;
 
         Ok(Self {
             stream,

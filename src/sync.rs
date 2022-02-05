@@ -22,9 +22,7 @@ impl Client {
 
         let mut buf = [0; 2];
         stream.read_exact(&mut buf)?;
-
-        let width = buf[0];
-        let height = buf[1];
+        let [width, height] = buf;
 
         Ok(Self {
             stream,
