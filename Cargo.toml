@@ -14,7 +14,7 @@ codegen-units = 1
 lto = true
 
 [features]
-default = ["sync", "async-tokio"]
+default = ["sync", "async-tokio", "embedded-graphics-impl"]
 sync = ["bufstream"]
 async-tokio = ["tokio"]
 embedded-graphics-impl = ["embedded-graphics", "sync"]
