@@ -21,6 +21,15 @@ impl Client {
         let stream = TcpStream::connect(addr).await?;
         let mut stream = BufStream::new(stream);
 
+        let mut protocol_version = [0; 1];
+        stream.read_exact(&mut protocol_version).await?;
+        if protocol_version[0] != 1 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Protocol version is not 1",
+            ));
+        }
+
         let mut buf = [0; 2];
         stream.read_exact(&mut buf).await?;
         let [width, height] = buf;
