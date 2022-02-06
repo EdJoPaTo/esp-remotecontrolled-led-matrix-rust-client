@@ -110,41 +110,55 @@ impl Client {
 }
 
 #[cfg(feature = "embedded-graphics")]
-impl embedded_graphics::geometry::OriginDimensions for Client {
-    fn size(&self) -> embedded_graphics::prelude::Size {
-        embedded_graphics::prelude::Size::new(u32::from(self.width), u32::from(self.height))
+mod embedded_graphics {
+    use crate::sync::Client;
+    use embedded_graphics::prelude::{RgbColor, Size};
+    use embedded_graphics::primitives::Rectangle;
+
+    impl embedded_graphics::geometry::OriginDimensions for Client {
+        fn size(&self) -> Size {
+            Size::new(u32::from(self.width), u32::from(self.height))
+        }
     }
-}
 
-#[cfg(feature = "embedded-graphics")]
-#[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-impl embedded_graphics::prelude::DrawTarget for Client {
-    type Color = embedded_graphics::pixelcolor::Rgb888;
-    type Error = std::io::Error;
+    #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+    impl embedded_graphics::prelude::DrawTarget for Client {
+        type Color = embedded_graphics::pixelcolor::Rgb888;
+        type Error = std::io::Error;
 
-    fn draw_iter<I>(&mut self, pixels: I) -> Result<(), Self::Error>
-    where
-        I: IntoIterator<Item = embedded_graphics::Pixel<Self::Color>>,
-    {
-        use embedded_graphics::prelude::RgbColor;
-        for p in pixels {
-            let point = p.0;
-            let color = p.1;
+        fn draw_iter<I>(&mut self, pixels: I) -> Result<(), Self::Error>
+        where
+            I: IntoIterator<Item = embedded_graphics::Pixel<Self::Color>>,
+        {
+            for p in pixels {
+                let point = p.0;
+                let color = p.1;
 
-            self.pixel(
-                point.x as u8,
-                point.y as u8,
+                self.pixel(
+                    point.x as u8,
+                    point.y as u8,
+                    color.r(),
+                    color.g(),
+                    color.b(),
+                )?;
+            }
+            Ok(())
+        }
+
+        fn fill_solid(&mut self, area: &Rectangle, color: Self::Color) -> Result<(), Self::Error> {
+            self.rectangle(
+                area.top_left.x as u8,
+                area.top_left.y as u8,
+                area.size.width as u8,
+                area.size.height as u8,
                 color.r(),
                 color.g(),
                 color.b(),
-            )?;
+            )
         }
-        self.flush()
-    }
 
-    fn clear(&mut self, color: Self::Color) -> Result<(), Self::Error> {
-        use embedded_graphics::prelude::RgbColor;
-        self.fill(color.r(), color.g(), color.b())?;
-        self.flush()
+        fn clear(&mut self, color: Self::Color) -> Result<(), Self::Error> {
+            self.fill(color.r(), color.g(), color.b())
+        }
     }
 }

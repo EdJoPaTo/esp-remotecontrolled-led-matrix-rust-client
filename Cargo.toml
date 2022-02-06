@@ -39,20 +39,14 @@ required-features = ["sync"]
 name = "stars"
 required-features = ["async-tokio"]
 
+[[example]]
+name = "text"
+required-features = ["embedded-graphics-impl"]
+
 [dependencies]
-
-[dependencies.bufstream]
-version = "0.1"
-optional = true
-
-[dependencies.embedded-graphics]
-version = "0.7"
-optional = true
-
-[dependencies.tokio]
-version = "1"
-optional = true
-features = ["full"]
+bufstream = { version = "0.1", optional = true }
+embedded-graphics = { version = "0.7", optional = true }
+tokio = { version = "1", optional = true, features = ["full"] }
 
 [dev-dependencies]
 bracket-color = "0.8"
