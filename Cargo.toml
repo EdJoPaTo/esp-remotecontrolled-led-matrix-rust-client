@@ -24,6 +24,10 @@ name = "fill"
 required-features = ["sync"]
 
 [[example]]
+name = "image"
+required-features = ["sync"]
+
+[[example]]
 name = "rectangle"
 required-features = ["sync"]
 
@@ -49,7 +53,9 @@ embedded-graphics = { version = "0.7", optional = true }
 tokio = { version = "1", optional = true, features = ["full"] }
 
 [dev-dependencies]
+anyhow = "1"
 bracket-color = "0.8"
+image = "0.24"
 rand = "0.8"
 
 [dev-dependencies.snake-logic]

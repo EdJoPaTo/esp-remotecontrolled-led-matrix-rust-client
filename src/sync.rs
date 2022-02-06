@@ -107,12 +107,53 @@ impl Client {
             blue,
         ])
     }
+
+    /// Send an area full of colors.
+    ///
+    /// The area begins in the top left at x/y and moves first on the x axis, then on the y axis.
+    /// The colors are given in R G B order.
+    ///
+    /// Do not forget to also run [flush] afterwards.
+    ///
+    /// # Errors
+    /// Errors when the command could not be sent
+    ///
+    /// [flush]: Self::flush
+    pub fn contiguous(
+        &mut self,
+        x: u8,
+        y: u8,
+        width: u8,
+        height: u8,
+        colors: &[u8],
+    ) -> std::io::Result<()> {
+        let too_wide = x.checked_add(width).map_or(true, |w| w > self.width);
+        let too_high = y.checked_add(height).map_or(true, |h| h > self.height);
+        if too_wide || too_high {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "area too big for display",
+            ));
+        }
+
+        let expected_length = (width as usize) * (height as usize) * 3;
+        if expected_length != colors.len() {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "colors is wrong length",
+            ));
+        }
+
+        self.stream
+            .write_all(&[Command::Contiguous as u8, x, y, width, height])?;
+        self.stream.write_all(colors)
+    }
 }
 
 #[cfg(feature = "embedded-graphics")]
 mod embedded_graphics {
     use crate::sync::Client;
-    use embedded_graphics::prelude::{RgbColor, Size};
+    use embedded_graphics::prelude::{Dimensions, PointsIter, RgbColor, Size};
     use embedded_graphics::primitives::Rectangle;
 
     impl embedded_graphics::geometry::OriginDimensions for Client {
@@ -130,27 +171,56 @@ mod embedded_graphics {
         where
             I: IntoIterator<Item = embedded_graphics::Pixel<Self::Color>>,
         {
+            let bounding_box = self.bounding_box();
             for p in pixels {
                 let point = p.0;
                 let color = p.1;
-
-                self.pixel(
-                    point.x as u8,
-                    point.y as u8,
-                    color.r(),
-                    color.g(),
-                    color.b(),
-                )?;
+                if bounding_box.contains(point) {
+                    self.pixel(
+                        point.x as u8,
+                        point.y as u8,
+                        color.r(),
+                        color.g(),
+                        color.b(),
+                    )?;
+                }
             }
             Ok(())
         }
 
+        fn fill_contiguous<I>(&mut self, area: &Rectangle, colors: I) -> Result<(), Self::Error>
+        where
+            I: IntoIterator<Item = Self::Color>,
+        {
+            let drawable_area = area.intersection(&self.bounding_box());
+            if drawable_area.is_zero_sized() {
+                return Ok(());
+            }
+            let colors = area
+                .points()
+                .zip(colors)
+                .filter(|(pos, _color)| drawable_area.contains(*pos))
+                .flat_map(|(_pos, c)| [c.r(), c.g(), c.b()])
+                .collect::<Vec<_>>();
+            self.contiguous(
+                drawable_area.top_left.x as u8,
+                drawable_area.top_left.y as u8,
+                drawable_area.size.width as u8,
+                drawable_area.size.height as u8,
+                &colors,
+            )
+        }
+
         fn fill_solid(&mut self, area: &Rectangle, color: Self::Color) -> Result<(), Self::Error> {
+            let drawable_area = area.intersection(&self.bounding_box());
+            if drawable_area.is_zero_sized() {
+                return Ok(());
+            }
             self.rectangle(
-                area.top_left.x as u8,
-                area.top_left.y as u8,
-                area.size.width as u8,
-                area.size.height as u8,
+                drawable_area.top_left.x as u8,
+                drawable_area.top_left.y as u8,
+                drawable_area.size.width as u8,
+                drawable_area.size.height as u8,
                 color.r(),
                 color.g(),
                 color.b(),

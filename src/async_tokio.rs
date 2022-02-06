@@ -119,4 +119,46 @@ impl Client {
             ])
             .await
     }
+
+    /// Send an area full of colors.
+    ///
+    /// The area begins in the top left at x/y and moves first on the x axis, then on the y axis.
+    /// The colors are given in R G B order.
+    ///
+    /// Do not forget to also run [flush] afterwards.
+    ///
+    /// # Errors
+    /// Errors when the command could not be sent
+    ///
+    /// [flush]: Self::flush
+    pub async fn contiguous(
+        &mut self,
+        x: u8,
+        y: u8,
+        width: u8,
+        height: u8,
+        colors: &[u8],
+    ) -> std::io::Result<()> {
+        let too_wide = x.checked_add(width).map_or(true, |w| w > self.width);
+        let too_high = y.checked_add(height).map_or(true, |h| h > self.height);
+        if too_wide || too_high {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "area too big for display",
+            ));
+        }
+
+        let expected_length = (width as usize) * (height as usize) * 3;
+        if expected_length != colors.len() {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "colors is wrong length",
+            ));
+        }
+
+        self.stream
+            .write_all(&[Command::Contiguous as u8, x, y, width, height])
+            .await?;
+        self.stream.write_all(colors).await
+    }
 }
