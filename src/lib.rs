@@ -4,8 +4,9 @@ pub mod async_tokio;
 pub mod sync;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 #[repr(u8)]
-pub enum Command {
+pub(crate) enum Command {
     Fill = 1,
     Pixel = 2,
     Rectangle = 3,
