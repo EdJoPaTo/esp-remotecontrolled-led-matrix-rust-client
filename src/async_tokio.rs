@@ -1,10 +1,14 @@
+use std::sync::Arc;
+
 use tokio::io::{AsyncReadExt, AsyncWriteExt, BufStream};
 use tokio::net::{TcpStream, ToSocketAddrs};
+use tokio::sync::Mutex;
 
 use crate::Command;
 
+#[derive(Clone)]
 pub struct Client {
-    stream: BufStream<TcpStream>,
+    stream: Arc<Mutex<BufStream<TcpStream>>>,
     width: u8,
     height: u8,
 }
@@ -35,7 +39,7 @@ impl Client {
         let [width, height] = buf;
 
         Ok(Self {
-            stream,
+            stream: Arc::new(Mutex::new(stream)),
             width,
             height,
         })
@@ -61,7 +65,7 @@ impl Client {
     /// # Errors
     /// Errors when the command could not be sent
     pub async fn flush(&mut self) -> std::io::Result<()> {
-        self.stream.flush().await
+        self.stream.lock().await.flush().await
     }
 
     /// Set one pixel of the matrix to the given color.
@@ -80,6 +84,8 @@ impl Client {
         blue: u8,
     ) -> std::io::Result<()> {
         self.stream
+            .lock()
+            .await
             .write_all(&[Command::Pixel as u8, x, y, red, green, blue])
             .await
     }
@@ -93,6 +99,8 @@ impl Client {
     /// [flush]: Self::flush
     pub async fn fill(&mut self, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
         self.stream
+            .lock()
+            .await
             .write_all(&[Command::Fill as u8, red, green, blue])
             .await
     }
@@ -116,6 +124,8 @@ impl Client {
         blue: u8,
     ) -> std::io::Result<()> {
         self.stream
+            .lock()
+            .await
             .write_all(&[
                 Command::Rectangle as u8,
                 x,
@@ -165,9 +175,11 @@ impl Client {
             ));
         }
 
-        self.stream
+        let mut stream = self.stream.lock().await;
+
+        stream
             .write_all(&[Command::Contiguous as u8, x, y, width, height])
             .await?;
-        self.stream.write_all(colors).await
+        stream.write_all(colors).await
     }
 }

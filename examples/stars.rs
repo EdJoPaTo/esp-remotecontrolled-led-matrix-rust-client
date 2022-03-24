@@ -10,12 +10,13 @@ use tokio::time::sleep;
 async fn main() {
     let addr = std::env::var("ADDR");
     let addr = addr.as_deref().unwrap_or("espPixelmatrix:1337");
+    let mut client = Client::connect(addr).await.expect("failed to connect");
 
     {
-        let addr = addr.to_string();
+        let mut client = client.clone();
         task::spawn(async move {
             loop {
-                if let Err(err) = stars(&addr).await {
+                if let Err(err) = stars(&mut client).await {
                     println!("pixelflut_stars ERROR {}", err);
                 }
                 sleep(Duration::from_secs(5)).await;
@@ -24,10 +25,9 @@ async fn main() {
     }
 
     let handle = {
-        let addr = addr.to_string();
         task::spawn(async move {
             loop {
-                if let Err(err) = stars(&addr).await {
+                if let Err(err) = stars(&mut client).await {
                     println!("pixelflut_stars ERROR {}", err);
                 }
                 sleep(Duration::from_secs(5)).await;
@@ -39,9 +39,7 @@ async fn main() {
     handle.await.unwrap();
 }
 
-async fn stars(addr: &str) -> std::io::Result<()> {
-    let mut client = Client::connect(addr).await?;
-
+async fn stars(client: &mut Client) -> std::io::Result<()> {
     loop {
         let (dur, x, y) = {
             let mut rng = rand::thread_rng();
