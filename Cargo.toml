@@ -6,6 +6,8 @@ license = "MIT"
 repository = "https://github.com/EdJoPaTo/esp-wlan-led-matrix-rust-client"
 authors = ["EdJoPaTo <esp-wlan-led-matrix-client-rust@edjopato.de>"]
 edition = "2018"
+keywords = ["led", "matrix", "ws2812", "remotecontrolled"]
+categories = ["api-bindings", "network-programming"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [profile.release]
