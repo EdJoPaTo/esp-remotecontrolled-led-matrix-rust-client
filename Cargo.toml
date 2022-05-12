@@ -63,4 +63,4 @@ rand = "0.8"
 [dev-dependencies.snake-logic]
 # path = "../snake-logic"
 git = "https://github.com/EdJoPaTo/snake-logic"
-tag = "v0.3.0"
+tag = "v0.4.0"
