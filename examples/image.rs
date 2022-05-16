@@ -4,12 +4,11 @@ use std::time::Instant;
 use esp_wlan_led_matrix_client::sync::Client;
 
 fn main() {
-    let addr = std::env::var("ADDR");
-    let addr = addr.as_deref().unwrap_or("espPixelmatrix:1337");
-
     let image_path = std::env::var("IMAGE");
     let image_path = image_path.as_deref().unwrap_or("bla.png");
 
+    let addr = std::env::var("ADDR");
+    let addr = addr.as_deref().unwrap_or("espPixelmatrix:1337");
     let mut client = Client::connect(addr).expect("connection error");
 
     println!(

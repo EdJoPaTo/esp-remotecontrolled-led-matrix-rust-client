@@ -1,3 +1,4 @@
+use std::io::{Read, Write};
 use std::thread::sleep;
 use std::time::Duration;
 use std::time::Instant;
@@ -32,7 +33,7 @@ fn main() {
 }
 
 #[allow(clippy::cast_precision_loss)]
-fn speedtest(client: &mut Client) -> std::io::Result<()> {
+fn speedtest<S: Read + Write>(client: &mut Client<S>) -> std::io::Result<()> {
     let total_pixels = client.total_pixels() as usize;
     let start = Instant::now();
     let mut pixel_wrote: usize = 0;

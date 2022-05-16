@@ -1,3 +1,4 @@
+use std::io::{Read, Write};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -34,7 +35,11 @@ fn main() {
     }
 }
 
-fn do_death(client: &mut Client, snake: &[Point], food: Point) -> std::io::Result<()> {
+fn do_death<S: Read + Write>(
+    client: &mut Client<S>,
+    snake: &[Point],
+    food: Point,
+) -> std::io::Result<()> {
     println!(
         "snake length {:3} died at {:3} {:3}",
         snake.len(),
@@ -51,7 +56,7 @@ fn do_death(client: &mut Client, snake: &[Point], food: Point) -> std::io::Resul
     Ok(())
 }
 
-fn snake(client: &mut Client) -> std::io::Result<()> {
+fn snake<S: Read + Write>(client: &mut Client<S>) -> std::io::Result<()> {
     let width = client.width();
     let height = client.height();
     loop {

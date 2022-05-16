@@ -6,20 +6,49 @@ use bufstream::BufStream;
 
 use crate::Command;
 
-#[derive(Clone)]
-pub struct Client {
-    stream: Arc<Mutex<BufStream<TcpStream>>>,
+pub struct Client<S: Read + Write> {
+    stream: Arc<Mutex<BufStream<S>>>,
     width: u8,
     height: u8,
 }
 
-impl Client {
-    /// Connect to the server
+impl<S: Read + Write> Clone for Client<S> {
+    fn clone(&self) -> Self {
+        Self {
+            stream: self.stream.clone(),
+            ..*self
+        }
+    }
+}
+
+impl Client<TcpStream> {
+    /// Connect to the server via TCP
     ///
     /// # Errors
     /// Errors when the connection could not be established.
     pub fn connect(addr: impl ToSocketAddrs) -> std::io::Result<Self> {
         let stream = TcpStream::connect(addr)?;
+        Self::new(stream)
+    }
+}
+
+impl<S: Read + Write> Client<S> {
+    /// Create a client via a connection stream
+    ///
+    /// ```no_run
+    /// # use std::net::TcpStream;
+    /// # use esp_wlan_led_matrix_client::sync::Client;
+    /// # fn main() -> std::io::Result<()> {
+    /// let stream = TcpStream::connect("espPixelmatrix:1337")?;
+    /// let client = Client::new(stream)?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// Does error when the response is not correct to the protocol
+    pub fn new(stream: S) -> std::io::Result<Self> {
         let mut stream = BufStream::new(stream);
 
         let mut protocol_version = [0; 1];
@@ -43,18 +72,18 @@ impl Client {
     }
 
     #[must_use]
-    pub const fn width(&self) -> u8 {
+    pub fn width(&self) -> u8 {
         self.width
     }
 
     #[must_use]
-    pub const fn height(&self) -> u8 {
+    pub fn height(&self) -> u8 {
         self.height
     }
 
     #[must_use]
-    pub const fn total_pixels(&self) -> u16 {
-        (self.width as u16) * (self.height as u16)
+    pub fn total_pixels(&self) -> u16 {
+        u16::from(self.width) * u16::from(self.height)
     }
 
     /// Flushes the internal buffer and sends everything to the server
@@ -107,8 +136,7 @@ impl Client {
         green: u8,
         blue: u8,
     ) -> std::io::Result<()> {
-        let mut stream = self.stream.lock().map_err(poison_err)?;
-        stream.write_all(&[
+        self.stream.lock().map_err(poison_err)?.write_all(&[
             Command::Rectangle as u8,
             x,
             y,
@@ -164,18 +192,20 @@ impl Client {
 
 #[cfg(feature = "embedded-graphics")]
 mod embedded_graphics {
+    use std::io::{Read, Write};
+
     use crate::sync::Client;
     use embedded_graphics::prelude::{Dimensions, PointsIter, RgbColor, Size};
     use embedded_graphics::primitives::Rectangle;
 
-    impl embedded_graphics::geometry::OriginDimensions for Client {
+    impl<S: Read + Write> embedded_graphics::geometry::OriginDimensions for Client<S> {
         fn size(&self) -> Size {
             Size::new(u32::from(self.width), u32::from(self.height))
         }
     }
 
     #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-    impl embedded_graphics::prelude::DrawTarget for Client {
+    impl<S: Read + Write> embedded_graphics::prelude::DrawTarget for Client<S> {
         type Color = embedded_graphics::pixelcolor::Rgb888;
         type Error = std::io::Error;
 

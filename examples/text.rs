@@ -8,12 +8,11 @@ use embedded_graphics::{
 use esp_wlan_led_matrix_client::sync::Client;
 
 fn main() {
-    let addr = std::env::var("ADDR");
-    let addr = addr.as_deref().unwrap_or("espPixelmatrix:1337");
-
     let text = std::env::var("TEXT");
     let text = text.as_deref().unwrap_or("hey!");
 
+    let addr = std::env::var("ADDR");
+    let addr = addr.as_deref().unwrap_or("espPixelmatrix:1337");
     let mut client = Client::connect(addr).expect("connection error");
 
     println!(

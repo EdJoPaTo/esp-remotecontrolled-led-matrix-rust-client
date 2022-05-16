@@ -1,3 +1,5 @@
+#![allow(clippy::missing_const_for_fn)]
+
 #[cfg(feature = "async-tokio")]
 pub mod async_tokio;
 #[cfg(feature = "sync")]
