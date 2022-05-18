@@ -1,20 +1,29 @@
 use std::sync::Arc;
 
-use tokio::io::{AsyncReadExt, AsyncWriteExt, BufStream};
+use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt, BufStream};
+
 use tokio::net::{TcpStream, ToSocketAddrs};
 use tokio::sync::Mutex;
 
 use crate::Command;
 
-#[derive(Clone)]
-pub struct Client {
-    stream: Arc<Mutex<BufStream<TcpStream>>>,
+pub struct Client<S: AsyncRead + AsyncWrite> {
+    stream: Arc<Mutex<BufStream<S>>>,
     width: u8,
     height: u8,
 }
 
-impl Client {
-    /// Connect to the server
+impl<S: AsyncRead + AsyncWrite> Clone for Client<S> {
+    fn clone(&self) -> Self {
+        Self {
+            stream: self.stream.clone(),
+            ..*self
+        }
+    }
+}
+
+impl Client<TcpStream> {
+    /// Connect to the server via TCP
     ///
     /// # Errors
     /// Errors when the connection could not be established.
@@ -23,6 +32,43 @@ impl Client {
         A: ToSocketAddrs + Send,
     {
         let stream = TcpStream::connect(addr).await?;
+        Self::new(stream).await
+    }
+}
+
+impl<S: AsyncRead + AsyncWrite> Client<S> {
+    #[must_use]
+    pub fn width(&self) -> u8 {
+        self.width
+    }
+
+    #[must_use]
+    pub fn height(&self) -> u8 {
+        self.height
+    }
+
+    #[must_use]
+    pub fn total_pixels(&self) -> u16 {
+        u16::from(self.width) * u16::from(self.height)
+    }
+}
+
+impl<S: AsyncRead + AsyncWrite + Unpin + Send> Client<S> {
+    /// Create a client via a connection stream
+    ///
+    /// ```no_run
+    /// # use tokio::net::TcpStream;
+    /// # use esp_wlan_led_matrix_client::async_tokio::Client;
+    /// # #[tokio::main]
+    /// # async fn main() -> std::io::Result<()> {
+    /// let stream = TcpStream::connect("espPixelmatrix:1337").await?;
+    /// let client = Client::new(stream).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    /// # Errors
+    /// Errors when the response is not correct to the protocol
+    pub async fn new(stream: S) -> std::io::Result<Self> {
         let mut stream = BufStream::new(stream);
 
         let mut protocol_version = [0; 1];
@@ -43,21 +89,6 @@ impl Client {
             width,
             height,
         })
-    }
-
-    #[must_use]
-    pub const fn width(&self) -> u8 {
-        self.width
-    }
-
-    #[must_use]
-    pub const fn height(&self) -> u8 {
-        self.height
-    }
-
-    #[must_use]
-    pub const fn total_pixels(&self) -> u16 {
-        (self.width as u16) * (self.height as u16)
     }
 
     /// Flushes the internal buffer and sends everything to the server

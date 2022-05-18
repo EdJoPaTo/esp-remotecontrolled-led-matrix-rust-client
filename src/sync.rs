@@ -33,6 +33,21 @@ impl Client<TcpStream> {
 }
 
 impl<S: Read + Write> Client<S> {
+    #[must_use]
+    pub fn width(&self) -> u8 {
+        self.width
+    }
+
+    #[must_use]
+    pub fn height(&self) -> u8 {
+        self.height
+    }
+
+    #[must_use]
+    pub fn total_pixels(&self) -> u16 {
+        u16::from(self.width) * u16::from(self.height)
+    }
+
     /// Create a client via a connection stream
     ///
     /// ```no_run
@@ -47,7 +62,7 @@ impl<S: Read + Write> Client<S> {
     ///
     /// # Errors
     ///
-    /// Does error when the response is not correct to the protocol
+    /// Errors when the response is not correct to the protocol
     pub fn new(stream: S) -> std::io::Result<Self> {
         let mut stream = BufStream::new(stream);
 
@@ -69,21 +84,6 @@ impl<S: Read + Write> Client<S> {
             width,
             height,
         })
-    }
-
-    #[must_use]
-    pub fn width(&self) -> u8 {
-        self.width
-    }
-
-    #[must_use]
-    pub fn height(&self) -> u8 {
-        self.height
-    }
-
-    #[must_use]
-    pub fn total_pixels(&self) -> u16 {
-        u16::from(self.width) * u16::from(self.height)
     }
 
     /// Flushes the internal buffer and sends everything to the server
