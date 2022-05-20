@@ -1,12 +1,14 @@
 use std::io::{Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
+use std::sync::{Arc, Mutex};
 
 use bufstream::BufStream;
 
 use crate::Command;
 
+#[derive(Clone)]
 pub struct Client {
-    stream: BufStream<TcpStream>,
+    stream: Arc<Mutex<BufStream<TcpStream>>>,
     width: u8,
     height: u8,
 }
@@ -34,7 +36,7 @@ impl Client {
         let [width, height] = buf;
 
         Ok(Self {
-            stream,
+            stream: Arc::new(Mutex::new(stream)),
             width,
             height,
         })
@@ -60,7 +62,7 @@ impl Client {
     /// # Errors
     /// Errors when the command could not be sent
     pub fn flush(&mut self) -> std::io::Result<()> {
-        self.stream.flush()
+        self.stream.lock().map_err(poison_err)?.flush()
     }
 
     /// Set one pixel of the matrix to the given color.
@@ -71,8 +73,8 @@ impl Client {
     ///
     /// [flush]: Self::flush
     pub fn pixel(&mut self, x: u8, y: u8, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
-        self.stream
-            .write_all(&[Command::Pixel as u8, x, y, red, green, blue])
+        let mut stream = self.stream.lock().map_err(poison_err)?;
+        stream.write_all(&[Command::Pixel as u8, x, y, red, green, blue])
     }
 
     /// Fill the whole matrix with one color.
@@ -83,8 +85,8 @@ impl Client {
     ///
     /// [flush]: Self::flush
     pub fn fill(&mut self, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
-        self.stream
-            .write_all(&[Command::Fill as u8, red, green, blue])
+        let mut stream = self.stream.lock().map_err(poison_err)?;
+        stream.write_all(&[Command::Fill as u8, red, green, blue])
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -105,7 +107,8 @@ impl Client {
         green: u8,
         blue: u8,
     ) -> std::io::Result<()> {
-        self.stream.write_all(&[
+        let mut stream = self.stream.lock().map_err(poison_err)?;
+        stream.write_all(&[
             Command::Rectangle as u8,
             x,
             y,
@@ -153,9 +156,9 @@ impl Client {
             ));
         }
 
-        self.stream
-            .write_all(&[Command::Contiguous as u8, x, y, width, height])?;
-        self.stream.write_all(colors)
+        let mut stream = self.stream.lock().map_err(poison_err)?;
+        stream.write_all(&[Command::Contiguous as u8, x, y, width, height])?;
+        stream.write_all(colors)
     }
 }
 
@@ -240,4 +243,9 @@ mod embedded_graphics {
             self.fill(color.r(), color.g(), color.b())
         }
     }
+}
+
+#[allow(clippy::needless_pass_by_value)]
+fn poison_err<S>(_err: S) -> std::io::Error {
+    std::io::Error::new(std::io::ErrorKind::Other, "Mutex poisoned")
 }
