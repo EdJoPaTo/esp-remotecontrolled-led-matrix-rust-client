@@ -15,12 +15,6 @@ categories = ["api-bindings", "network-programming"]
 codegen-units = 1
 lto = true
 
-[features]
-default = ["sync", "async-tokio", "embedded-graphics-impl"]
-sync = ["bufstream"]
-async-tokio = ["tokio"]
-embedded-graphics-impl = ["embedded-graphics", "sync"]
-
 [[example]]
 name = "fill"
 required-features = ["sync"]
@@ -43,19 +37,25 @@ required-features = ["sync"]
 
 [[example]]
 name = "stars"
-required-features = ["async-tokio"]
+required-features = ["async-tokio", "tokio/full"]
 
 [[example]]
 name = "text"
-required-features = ["embedded-graphics-impl"]
+required-features = ["embedded-graphics-impl", "tokio/full"]
+
+[features]
+default = ["sync", "async-tokio", "embedded-graphics-impl"]
+sync = ["bufstream"]
+async-tokio = ["tokio"]
+embedded-graphics-impl = ["embedded-graphics", "sync"]
 
 [dependencies]
 bufstream = { version = "0.1", optional = true }
 embedded-graphics = { version = "0.7", optional = true }
-tokio = { version = "1", optional = true, features = ["full"] }
+tokio = { version = "1.0", optional = true, features = ["io-util", "net", "sync"] }
 
 [dev-dependencies]
-anyhow = "1"
+anyhow = "1.0"
 bracket-color = "0.8"
 image = "0.24"
 rand = "0.8"
