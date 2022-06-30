@@ -1,6 +1,7 @@
-use std::io::{Read, Write};
+use std::io::{ErrorKind, Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 use bufstream::BufStream;
 
@@ -20,13 +21,37 @@ impl Client {
     /// Errors when the connection could not be established.
     pub fn connect(addr: impl ToSocketAddrs) -> std::io::Result<Self> {
         let stream = TcpStream::connect(addr)?;
+        Self::connect_tcp_stream(stream)
+    }
+
+    /// Connect to the server
+    ///
+    /// For each `SocketAddr` possible from the given `addr` the timeout is used.
+    /// When an `addr` resolved to IPv4 and IPv6 the timeout could be used up twice.
+    ///
+    /// # Errors
+    /// Errors when the connection could not be established.
+    pub fn connect_timeout(addr: impl ToSocketAddrs, timeout: Duration) -> std::io::Result<Self> {
+        let mut last_err = None;
+        for addr in addr.to_socket_addrs()? {
+            match TcpStream::connect_timeout(&addr, timeout).and_then(Self::connect_tcp_stream) {
+                Ok(s) => return Ok(s),
+                Err(e) => last_err = Some(e),
+            }
+        }
+        Err(last_err.unwrap_or_else(|| {
+            std::io::Error::new(ErrorKind::InvalidInput, "could not resolve to any address")
+        }))
+    }
+
+    fn connect_tcp_stream(stream: TcpStream) -> std::io::Result<Self> {
         let mut stream = BufStream::new(stream);
 
         let mut protocol_version = [0; 1];
         stream.read_exact(&mut protocol_version)?;
         if protocol_version[0] != 1 {
             return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
+                ErrorKind::Other,
                 "Protocol version is not 1",
             ));
         }
@@ -143,7 +168,7 @@ impl Client {
         let too_high = y.checked_add(height).map_or(true, |h| h > self.height);
         if too_wide || too_high {
             return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
+                ErrorKind::Other,
                 "area too big for display",
             ));
         }
@@ -151,7 +176,7 @@ impl Client {
         let expected_length = (width as usize) * (height as usize) * 3;
         if expected_length != colors.len() {
             return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
+                ErrorKind::Other,
                 "colors is wrong length",
             ));
         }
@@ -247,5 +272,5 @@ mod embedded_graphics {
 
 #[allow(clippy::needless_pass_by_value)]
 fn poison_err<S>(_err: S) -> std::io::Error {
-    std::io::Error::new(std::io::ErrorKind::Other, "Mutex poisoned")
+    std::io::Error::new(ErrorKind::Other, "Mutex poisoned")
 }
