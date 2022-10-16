@@ -2,7 +2,7 @@ use std::thread::sleep;
 use std::time::Duration;
 use std::time::Instant;
 
-use esp_wlan_led_matrix_client::sync::Client;
+use esp_remotecontrolled_led_matrix_client::sync::Client;
 
 fn main() {
     let addr = std::env::var("ADDR");

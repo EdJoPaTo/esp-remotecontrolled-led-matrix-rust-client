@@ -2,7 +2,7 @@ use std::thread::sleep;
 use std::time::Duration;
 
 use bracket_color::prelude::HSV;
-use esp_wlan_led_matrix_client::sync::Client;
+use esp_remotecontrolled_led_matrix_client::sync::Client;
 use snake_logic::{get_next_point, Point};
 
 const RUN_SLEEP: Duration = Duration::from_millis(200);

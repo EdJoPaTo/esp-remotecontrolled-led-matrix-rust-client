@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use esp_wlan_led_matrix_client::sync::Client;
+use esp_remotecontrolled_led_matrix_client::sync::Client;
 
 fn main() {
     let addr = std::env::var("ADDR");
