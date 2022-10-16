@@ -19,7 +19,7 @@ async fn main() {
                 Duration::from_millis(dur)
             }
             Err(err) => {
-                eprintln!("spawn_star ERROR {}", err);
+                eprintln!("spawn_star ERROR {err}");
                 Duration::from_secs(2)
             }
         };
@@ -43,14 +43,14 @@ async fn spawn_star(mut client: Client) -> std::io::Result<()> {
         let y = rng.gen_range(0..client.height());
         (x, y)
     };
-    println!("star {:3} {:3}", x, y);
+    println!("star {x:3} {y:3}");
 
     client.pixel(x, y, 255, 255, 255).await?;
     client.flush().await?;
 
     task::spawn(async move {
         if let Err(err) = fade_away(client, x, y).await {
-            println!("spawn_star ERROR {}", err);
+            println!("spawn_star ERROR {err}");
         }
     });
     Ok(())

@@ -20,11 +20,11 @@ fn main() {
                 );
 
                 if let Err(err) = speedtest(&mut client) {
-                    eprintln!("ERROR: {}", err);
+                    eprintln!("ERROR: {err}");
                 }
             }
             Err(err) => {
-                eprintln!("CONNECT ERROR: {}", err);
+                eprintln!("CONNECT ERROR: {err}");
                 sleep(Duration::from_millis(500));
             }
         }

@@ -27,7 +27,7 @@ fn main() {
     let x = (client.width() - img.0) / 2;
     let y = (client.height() - img.1) / 2;
 
-    println!("img1 {:?}", img);
+    println!("img1 {img:?}");
 
     let load = load.elapsed();
     println!("Bitmap load took {:9.2} ms", load.as_secs_f64() * 1000.0);
