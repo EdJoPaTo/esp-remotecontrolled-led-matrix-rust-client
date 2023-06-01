@@ -1,7 +1,7 @@
+use core::time::Duration;
 use std::io::{ErrorKind, Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
 
 use bufstream::BufStream;
 
