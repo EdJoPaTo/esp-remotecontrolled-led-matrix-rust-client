@@ -20,5 +20,5 @@ You also might want to use `features`, check the [the Cargo.toml of this project
 git = "https://github.com/EdJoPaTo/esp-remotecontrolled-led-matrix-rust-client"
 branch = "main"
 default-features = false
-features = ["async-tokio", "embedded-graphics-impl"]
+features = ["embedded-graphics", "tokio"]
 ```

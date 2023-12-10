@@ -1,4 +1,4 @@
-#[cfg(feature = "async-tokio")]
+#[cfg(feature = "tokio")]
 pub mod async_tokio;
 #[cfg(feature = "sync")]
 pub mod sync;

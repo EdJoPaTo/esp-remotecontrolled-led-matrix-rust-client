@@ -37,17 +37,16 @@ required-features = ["sync"]
 
 [[example]]
 name = "stars"
-required-features = ["async-tokio", "tokio/full"]
+required-features = ["tokio/full"]
 
 [[example]]
 name = "text"
-required-features = ["embedded-graphics-impl", "tokio/full"]
+required-features = ["embedded-graphics", "tokio/full"]
 
 [features]
-default = ["sync", "async-tokio", "embedded-graphics-impl"]
-sync = ["bufstream"]
-async-tokio = ["tokio"]
-embedded-graphics-impl = ["embedded-graphics", "sync"]
+default = ["embedded-graphics", "sync", "tokio"]
+embedded-graphics = ["dep:embedded-graphics", "sync"]
+sync = ["dep:bufstream"]
 
 [dependencies]
 bufstream = { version = "0.1", optional = true }
