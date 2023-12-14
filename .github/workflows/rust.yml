@@ -38,7 +38,6 @@ jobs:
         clippyargs:
           - -D clippy::pedantic
         features:
-          - "" # default features
           - --all-features
           - --no-default-features --features=embedded-graphics
           - --no-default-features --features=sync
@@ -124,4 +123,4 @@ jobs:
         run: cargo fetch --verbose
 
       - name: Build
-        run: ${{ runner.os == 'Linux' && 'cross' || 'cargo' }} build --release --verbose --target ${{ matrix.triple }}
+        run: ${{ runner.os == 'Linux' && 'cross' || 'cargo' }} build --release --verbose --all-features --target ${{ matrix.triple }}

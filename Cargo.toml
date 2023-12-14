@@ -44,7 +44,7 @@ name = "text"
 required-features = ["embedded-graphics", "tokio/full"]
 
 [features]
-default = ["embedded-graphics", "sync", "tokio"]
+default = []
 embedded-graphics = ["dep:embedded-graphics", "sync"]
 sync = ["dep:bufstream"]
 
