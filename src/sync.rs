@@ -19,8 +19,8 @@ impl Client {
     ///
     /// # Errors
     /// Errors when the connection could not be established.
-    pub fn connect(addr: impl ToSocketAddrs) -> std::io::Result<Self> {
-        let stream = TcpStream::connect(addr)?;
+    pub fn connect<Address: ToSocketAddrs>(address: Address) -> std::io::Result<Self> {
+        let stream = TcpStream::connect(address)?;
         Self::connect_tcp_stream(stream)
     }
 
@@ -31,10 +31,13 @@ impl Client {
     ///
     /// # Errors
     /// Errors when the connection could not be established.
-    pub fn connect_timeout(addr: impl ToSocketAddrs, timeout: Duration) -> std::io::Result<Self> {
+    pub fn connect_timeout<Address: ToSocketAddrs>(
+        address: Address,
+        timeout: Duration,
+    ) -> std::io::Result<Self> {
         let mut last_err = None;
-        for addr in addr.to_socket_addrs()? {
-            match TcpStream::connect_timeout(&addr, timeout).and_then(Self::connect_tcp_stream) {
+        for address in address.to_socket_addrs()? {
+            match TcpStream::connect_timeout(&address, timeout).and_then(Self::connect_tcp_stream) {
                 Ok(s) => return Ok(s),
                 Err(e) => last_err = Some(e),
             }

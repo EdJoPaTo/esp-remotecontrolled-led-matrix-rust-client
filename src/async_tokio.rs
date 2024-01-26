@@ -18,11 +18,11 @@ impl Client {
     ///
     /// # Errors
     /// Errors when the connection could not be established.
-    pub async fn connect<A>(addr: A) -> std::io::Result<Self>
+    pub async fn connect<Address>(address: Address) -> std::io::Result<Self>
     where
-        A: ToSocketAddrs + Send,
+        Address: ToSocketAddrs + Send,
     {
-        let stream = TcpStream::connect(addr).await?;
+        let stream = TcpStream::connect(address).await?;
         let mut stream = BufStream::new(stream);
 
         let mut protocol_version = [0; 1];
