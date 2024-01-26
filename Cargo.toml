@@ -47,6 +47,7 @@ required-features = ["embedded-graphics", "tokio/full"]
 default = []
 embedded-graphics = ["dep:embedded-graphics", "sync"]
 sync = ["dep:bufstream"]
+tokio = ["dep:tokio"]
 
 [dependencies]
 bufstream = { version = "0.1", optional = true }
