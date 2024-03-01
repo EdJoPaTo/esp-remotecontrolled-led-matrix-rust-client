@@ -10,8 +10,20 @@ keywords = ["led", "matrix", "ws2812", "remotecontrolled"]
 categories = ["api-bindings", "network-programming"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = []
+embedded-graphics = ["dep:embedded-graphics", "sync"]
+sync = ["dep:bufstream"]
+tokio = ["dep:tokio"]
+
+[lints.rust]
+unsafe_code = "forbid"
+[lints.clippy]
+pedantic = "warn"
+nursery = "warn"
+
 [profile.release]
-# See https://doc.rust-lang.org/rustc/codegen-options/index.html
+# See https://doc.rust-lang.org/cargo/reference/profiles.html
 codegen-units = 1
 lto = true
 
@@ -42,12 +54,6 @@ required-features = ["tokio/full"]
 [[example]]
 name = "text"
 required-features = ["embedded-graphics", "tokio/full"]
-
-[features]
-default = []
-embedded-graphics = ["dep:embedded-graphics", "sync"]
-sync = ["dep:bufstream"]
-tokio = ["dep:tokio"]
 
 [dependencies]
 bufstream = { version = "0.1", optional = true }
