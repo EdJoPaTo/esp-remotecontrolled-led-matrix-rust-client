@@ -38,8 +38,8 @@ impl Client {
         let mut last_err = None;
         for address in address.to_socket_addrs()? {
             match TcpStream::connect_timeout(&address, timeout).and_then(Self::connect_tcp_stream) {
-                Ok(s) => return Ok(s),
-                Err(e) => last_err = Some(e),
+                Ok(client) => return Ok(client),
+                Err(error) => last_err = Some(error),
             }
         }
         Err(last_err.unwrap_or_else(|| {
@@ -167,8 +167,12 @@ impl Client {
         height: u8,
         colors: &[u8],
     ) -> std::io::Result<()> {
-        let too_wide = x.checked_add(width).map_or(true, |w| w > self.width);
-        let too_high = y.checked_add(height).map_or(true, |h| h > self.height);
+        let too_wide = x
+            .checked_add(width)
+            .map_or(true, |width| width > self.width);
+        let too_high = y
+            .checked_add(height)
+            .map_or(true, |height| height > self.height);
         if too_wide || too_high {
             return Err(std::io::Error::new(
                 ErrorKind::Other,
@@ -212,9 +216,7 @@ mod embedded_graphics {
             I: IntoIterator<Item = embedded_graphics::Pixel<Self::Color>>,
         {
             let bounding_box = self.bounding_box();
-            for p in pixels {
-                let point = p.0;
-                let color = p.1;
+            for embedded_graphics::Pixel(point, color) in pixels {
                 if bounding_box.contains(point) {
                     self.pixel(
                         point.x as u8,
@@ -240,7 +242,7 @@ mod embedded_graphics {
                 .points()
                 .zip(colors)
                 .filter(|(pos, _color)| drawable_area.contains(*pos))
-                .flat_map(|(_pos, c)| [c.r(), c.g(), c.b()])
+                .flat_map(|(_pos, color)| [color.r(), color.g(), color.b()])
                 .collect::<Vec<_>>();
             self.contiguous(
                 drawable_area.top_left.x as u8,

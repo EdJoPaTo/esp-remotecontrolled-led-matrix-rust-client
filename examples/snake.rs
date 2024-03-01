@@ -104,14 +104,14 @@ fn snake(client: &mut Client) -> std::io::Result<()> {
 
             hue = (hue + 5.0) % 360.0;
             {
-                let (r, g, b) = hue_to_rgb(hue);
-                client.pixel(next_point.x, next_point.y, r, g, b)?;
+                let (red, green, blue) = hue_to_rgb(hue);
+                client.pixel(next_point.x, next_point.y, red, green, blue)?;
             }
             snake.insert(0, next_point);
 
             {
-                let (r, g, b) = hue_to_rgb((hue + 180.0) % 360.0);
-                client.pixel(food.x, food.y, r, g, b)?;
+                let (red, green, blue) = hue_to_rgb((hue + 180.0) % 360.0);
+                client.pixel(food.x, food.y, red, green, blue)?;
             }
 
             client.flush()?;

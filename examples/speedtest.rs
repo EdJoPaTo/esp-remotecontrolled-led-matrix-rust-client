@@ -42,11 +42,11 @@ fn speedtest(client: &mut Client) -> std::io::Result<()> {
 
         for y in 0..client.height() {
             for x in 0..client.width() {
-                let r = rand::random::<u8>();
-                let g = rand::random::<u8>() / 2;
-                let b = rand::random::<u8>() / 3;
+                let red = rand::random::<u8>();
+                let green = rand::random::<u8>() / 2;
+                let blue = rand::random::<u8>() / 3;
 
-                client.pixel(x, y, r, g, b)?;
+                client.pixel(x, y, red, green, blue)?;
                 pixel_wrote = pixel_wrote.overflowing_add(1).0;
             }
         }

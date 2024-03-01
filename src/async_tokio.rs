@@ -158,8 +158,12 @@ impl Client {
         height: u8,
         colors: &[u8],
     ) -> std::io::Result<()> {
-        let too_wide = x.checked_add(width).map_or(true, |w| w > self.width);
-        let too_high = y.checked_add(height).map_or(true, |h| h > self.height);
+        let too_wide = x
+            .checked_add(width)
+            .map_or(true, |width| width > self.width);
+        let too_high = y
+            .checked_add(height)
+            .map_or(true, |height| height > self.height);
         if too_wide || too_high {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
