@@ -23,12 +23,13 @@ jobs:
   clippy:
     name: Clippy ${{ matrix.toolchain }}
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.toolchain == 'nightly' }}
+    continue-on-error: ${{ (matrix.toolchain == 'beta') || (matrix.toolchain == 'nightly') }}
     strategy:
       fail-fast: false
       matrix:
         toolchain:
           - stable
+          - beta
           - nightly
     env:
       RUSTFLAGS: --deny warnings
@@ -43,7 +44,6 @@ jobs:
       - run: cargo clippy --offline --all-features --all-targets
       - run: cargo doc --offline --all-features --no-deps
 
-
   features:
     name: Features ${{ matrix.toolchain }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -52,6 +52,7 @@ jobs:
       matrix:
         toolchain:
           - stable
+          - beta
         os:
           - ubuntu-latest
           - macos-latest
@@ -78,12 +79,9 @@ jobs:
       - name: Check without dev dependencies
         run: cargo hack --keep-going --feature-powerset --exclude-no-default-features --exclude-features default --no-dev-deps check --offline
 
-
-  github-release:
+  release:
     name: Release ${{ matrix.triple }}
     runs-on: ${{ matrix.os }}
-    needs:
-      - features
     strategy:
       fail-fast: false
       matrix:
