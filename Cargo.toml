@@ -11,7 +11,7 @@ categories = ["api-bindings", "network-programming"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = []
+# default = ["embedded-graphics", "tokio"]
 embedded-graphics = ["dep:embedded-graphics", "sync"]
 sync = ["dep:bufstream"]
 tokio = ["dep:tokio"]
