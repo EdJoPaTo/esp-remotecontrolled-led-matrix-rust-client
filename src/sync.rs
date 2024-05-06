@@ -196,9 +196,11 @@ impl Client {
 
 #[cfg(feature = "embedded-graphics")]
 mod embedded_graphics {
+    use embedded_graphics::geometry::{Dimensions, Size};
+    use embedded_graphics::pixelcolor::RgbColor;
+    use embedded_graphics::primitives::{PointsIter, Rectangle};
+
     use crate::sync::Client;
-    use embedded_graphics::prelude::{Dimensions, PointsIter, RgbColor, Size};
-    use embedded_graphics::primitives::Rectangle;
 
     impl embedded_graphics::geometry::OriginDimensions for Client {
         fn size(&self) -> Size {
@@ -207,7 +209,7 @@ mod embedded_graphics {
     }
 
     #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-    impl embedded_graphics::prelude::DrawTarget for Client {
+    impl embedded_graphics::draw_target::DrawTarget for Client {
         type Color = embedded_graphics::pixelcolor::Rgb888;
         type Error = std::io::Error;
 

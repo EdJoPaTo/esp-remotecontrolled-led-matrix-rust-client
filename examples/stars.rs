@@ -13,7 +13,7 @@ async fn main() {
 
     loop {
         let dur = match spawn_star(client.clone()).await {
-            Ok(_) => {
+            Ok(()) => {
                 let dur = rand::thread_rng().gen_range(0..40_u64);
                 let dur = dur.pow(2);
                 Duration::from_millis(dur)

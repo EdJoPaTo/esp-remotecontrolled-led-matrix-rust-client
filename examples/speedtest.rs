@@ -1,6 +1,5 @@
 use std::thread::sleep;
-use std::time::Duration;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use esp_remotecontrolled_led_matrix_client::sync::Client;
 
