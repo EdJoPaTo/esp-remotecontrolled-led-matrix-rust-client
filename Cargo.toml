@@ -23,9 +23,26 @@ pedantic = "warn"
 nursery = "warn"
 
 [profile.release]
-# See https://doc.rust-lang.org/cargo/reference/profiles.html
 codegen-units = 1
 lto = true
+
+[dependencies]
+bufstream = { version = "0.1", optional = true }
+embedded-graphics = { version = "0.8", optional = true }
+tokio = { version = "1", optional = true, features = ["io-util", "net", "sync"] }
+
+[dev-dependencies]
+anyhow = "1"
+bracket-color = "0.8"
+image = "0.25"
+rand = "0.8"
+tokio = { version = "1", features = ["full"] }
+
+[dev-dependencies.snake-logic]
+# path = "../snake-logic"
+git = "https://github.com/EdJoPaTo/snake-logic"
+tag = "v0.4.1"
+features = ["rand"]
 
 [[example]]
 name = "fill"
@@ -49,25 +66,8 @@ required-features = ["sync"]
 
 [[example]]
 name = "stars"
-required-features = ["tokio/full"]
+required-features = ["tokio"]
 
 [[example]]
 name = "text"
-required-features = ["embedded-graphics", "tokio/full"]
-
-[dependencies]
-bufstream = { version = "0.1", optional = true }
-embedded-graphics = { version = "0.8", optional = true }
-tokio = { version = "1", optional = true, features = ["io-util", "net", "sync"] }
-
-[dev-dependencies]
-anyhow = "1"
-bracket-color = "0.8"
-image = "0.25"
-rand = "0.8"
-
-[dev-dependencies.snake-logic]
-# path = "../snake-logic"
-git = "https://github.com/EdJoPaTo/snake-logic"
-tag = "v0.4.1"
-features = ["rand"]
+required-features = ["embedded-graphics", "tokio"]
