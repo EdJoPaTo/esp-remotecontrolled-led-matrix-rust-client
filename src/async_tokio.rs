@@ -69,12 +69,10 @@ impl Client {
     }
 
     /// Set one pixel of the matrix to the given color.
-    /// Do not forget to also run [flush] afterwards.
+    /// Do not forget to also run [`flush`](Self::flush) afterwards.
     ///
     /// # Errors
     /// Errors when the data could not be written to the send buffer
-    ///
-    /// [flush]: Self::flush
     pub async fn pixel(&self, x: u8, y: u8, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
         self.stream
             .lock()
@@ -84,12 +82,10 @@ impl Client {
     }
 
     /// Fill the whole matrix with one color.
-    /// Do not forget to also run [flush] afterwards.
+    /// Do not forget to also run [`flush`](Self::flush) afterwards.
     ///
     /// # Errors
     /// Errors when the command could not be sent
-    ///
-    /// [flush]: Self::flush
     pub async fn fill(&self, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
         self.stream
             .lock()
@@ -100,12 +96,10 @@ impl Client {
 
     #[allow(clippy::too_many_arguments)]
     /// Fill the given rectangular area with one color.
-    /// Do not forget to also run [flush] afterwards.
+    /// Do not forget to also run [`flush`](Self::flush) afterwards.
     ///
     /// # Errors
     /// Errors when the command could not be sent
-    ///
-    /// [flush]: Self::flush
     pub async fn rectangle(
         &self,
         x: u8,
@@ -137,12 +131,10 @@ impl Client {
     /// The area begins in the top left at x/y and moves first on the x axis, then on the y axis.
     /// The colors are given in R G B order.
     ///
-    /// Do not forget to also run [flush] afterwards.
+    /// Do not forget to also run [`flush`](Self::flush) afterwards.
     ///
     /// # Errors
     /// Errors when the command could not be sent
-    ///
-    /// [flush]: Self::flush
     pub async fn contiguous(
         &self,
         x: u8,
