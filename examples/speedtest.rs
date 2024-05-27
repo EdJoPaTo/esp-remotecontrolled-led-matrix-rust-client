@@ -9,7 +9,7 @@ fn main() {
 
     loop {
         match Client::connect(addr) {
-            Ok(mut client) => {
+            Ok(client) => {
                 println!(
                     "{} size {}x{} = {} pixels",
                     addr,
@@ -17,8 +17,7 @@ fn main() {
                     client.height(),
                     client.total_pixels()
                 );
-
-                if let Err(err) = speedtest(&mut client) {
+                if let Err(err) = speedtest(&client) {
                     eprintln!("ERROR: {err}");
                 }
             }
@@ -31,7 +30,7 @@ fn main() {
 }
 
 #[allow(clippy::cast_precision_loss)]
-fn speedtest(client: &mut Client) -> std::io::Result<()> {
+fn speedtest(client: &Client) -> std::io::Result<()> {
     let total_pixels = client.total_pixels() as usize;
     let start = Instant::now();
     let mut pixel_wrote: usize = 0;

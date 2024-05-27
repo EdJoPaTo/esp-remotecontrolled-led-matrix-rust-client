@@ -14,15 +14,14 @@ fn main() {
 
     loop {
         match Client::connect(addr) {
-            Ok(mut client) => {
+            Ok(client) => {
                 println!(
                     "size {}x{} = {} pixels",
                     client.width(),
                     client.height(),
                     client.total_pixels()
                 );
-
-                if let Err(err) = snake(&mut client) {
+                if let Err(err) = snake(&client) {
                     eprintln!("ERROR: {err}");
                 }
             }
@@ -34,7 +33,7 @@ fn main() {
     }
 }
 
-fn do_death(client: &mut Client, snake: &[Point], food: Point) -> std::io::Result<()> {
+fn do_death(client: &Client, snake: &[Point], food: Point) -> std::io::Result<()> {
     println!(
         "snake length {:3} died at {:3} {:3}",
         snake.len(),
@@ -46,12 +45,11 @@ fn do_death(client: &mut Client, snake: &[Point], food: Point) -> std::io::Resul
         client.flush()?;
         sleep(DECAY_SLEEP);
     }
-
     client.pixel(food.x, food.y, 0, 0, 0)?;
     Ok(())
 }
 
-fn snake(client: &mut Client) -> std::io::Result<()> {
+fn snake(client: &Client) -> std::io::Result<()> {
     let width = client.width();
     let height = client.height();
     loop {

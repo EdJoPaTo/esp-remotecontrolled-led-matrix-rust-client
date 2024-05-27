@@ -10,7 +10,7 @@ fn main() {
     let image_path = std::env::var("IMAGE");
     let image_path = image_path.as_deref().unwrap_or("bla.png");
 
-    let mut client = Client::connect(addr).expect("connection error");
+    let client = Client::connect(addr).expect("connection error");
 
     println!(
         "{} size {}x{} = {} pixels",

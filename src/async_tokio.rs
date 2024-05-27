@@ -64,7 +64,7 @@ impl Client {
     ///
     /// # Errors
     /// Errors when the command could not be sent
-    pub async fn flush(&mut self) -> std::io::Result<()> {
+    pub async fn flush(&self) -> std::io::Result<()> {
         self.stream.lock().await.flush().await
     }
 
@@ -75,14 +75,7 @@ impl Client {
     /// Errors when the data could not be written to the send buffer
     ///
     /// [flush]: Self::flush
-    pub async fn pixel(
-        &mut self,
-        x: u8,
-        y: u8,
-        red: u8,
-        green: u8,
-        blue: u8,
-    ) -> std::io::Result<()> {
+    pub async fn pixel(&self, x: u8, y: u8, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
         self.stream
             .lock()
             .await
@@ -97,7 +90,7 @@ impl Client {
     /// Errors when the command could not be sent
     ///
     /// [flush]: Self::flush
-    pub async fn fill(&mut self, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
+    pub async fn fill(&self, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
         self.stream
             .lock()
             .await
@@ -114,7 +107,7 @@ impl Client {
     ///
     /// [flush]: Self::flush
     pub async fn rectangle(
-        &mut self,
+        &self,
         x: u8,
         y: u8,
         width: u8,
@@ -151,7 +144,7 @@ impl Client {
     ///
     /// [flush]: Self::flush
     pub async fn contiguous(
-        &mut self,
+        &self,
         x: u8,
         y: u8,
         width: u8,

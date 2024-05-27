@@ -89,7 +89,7 @@ impl Client {
     ///
     /// # Errors
     /// Errors when the command could not be sent
-    pub fn flush(&mut self) -> std::io::Result<()> {
+    pub fn flush(&self) -> std::io::Result<()> {
         self.stream.lock().map_err(poison_err)?.flush()
     }
 
@@ -100,7 +100,7 @@ impl Client {
     /// Errors when the data could not be written to the send buffer
     ///
     /// [flush]: Self::flush
-    pub fn pixel(&mut self, x: u8, y: u8, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
+    pub fn pixel(&self, x: u8, y: u8, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
         let mut stream = self.stream.lock().map_err(poison_err)?;
         stream.write_all(&[Command::Pixel as u8, x, y, red, green, blue])
     }
@@ -112,7 +112,7 @@ impl Client {
     /// Errors when the command could not be sent
     ///
     /// [flush]: Self::flush
-    pub fn fill(&mut self, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
+    pub fn fill(&self, red: u8, green: u8, blue: u8) -> std::io::Result<()> {
         let mut stream = self.stream.lock().map_err(poison_err)?;
         stream.write_all(&[Command::Fill as u8, red, green, blue])
     }
@@ -126,7 +126,7 @@ impl Client {
     ///
     /// [flush]: Self::flush
     pub fn rectangle(
-        &mut self,
+        &self,
         x: u8,
         y: u8,
         width: u8,
@@ -160,7 +160,7 @@ impl Client {
     ///
     /// [flush]: Self::flush
     pub fn contiguous(
-        &mut self,
+        &self,
         x: u8,
         y: u8,
         width: u8,

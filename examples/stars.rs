@@ -27,8 +27,8 @@ async fn main() {
     }
 }
 
-async fn spawn_star(mut client: Client) -> std::io::Result<()> {
-    async fn fade_away(mut client: Client, x: u8, y: u8) -> std::io::Result<()> {
+async fn spawn_star(client: Client) -> std::io::Result<()> {
+    async fn fade_away(client: Client, x: u8, y: u8) -> std::io::Result<()> {
         for bri in [100_u8, 0] {
             sleep(Duration::from_millis(150)).await;
             client.pixel(x, y, bri, bri, bri).await?;
