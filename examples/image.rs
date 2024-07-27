@@ -44,7 +44,7 @@ fn load_img<P>(path: P, max_width: u8, max_height: u8) -> anyhow::Result<(u8, u8
 where
     P: AsRef<Path>,
 {
-    let img = image::io::Reader::open(path)?.decode()?;
+    let img = image::ImageReader::open(path)?.decode()?;
 
     let width = img.width().min(u32::from(max_width)) as u8;
     let height = img.height().min(u32::from(max_height)) as u8;
