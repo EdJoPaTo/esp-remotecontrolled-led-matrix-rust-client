@@ -36,7 +36,7 @@ tokio = { version = "1.0.1", optional = true, features = ["io-util", "net", "syn
 anyhow = "1.0.58"
 bracket-color = "0.8.7"
 image = "0.25.2"
-rand = "0.8.0"
+rand = "0.9.0"
 tokio = { version = "1.0.1", features = ["full"] }
 
 [dev-dependencies.snake-logic]
