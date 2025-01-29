@@ -14,7 +14,7 @@ async fn main() {
     loop {
         let dur = match spawn_star(client.clone()).await {
             Ok(()) => {
-                let dur = rand::thread_rng().gen_range(0..40_u64);
+                let dur = rand::random_range(0..40_u64);
                 let dur = dur.pow(2);
                 Duration::from_millis(dur)
             }
@@ -38,9 +38,9 @@ async fn spawn_star(client: Client) -> std::io::Result<()> {
     }
 
     let (x, y) = {
-        let mut rng = rand::thread_rng();
-        let x = rng.gen_range(0..client.width());
-        let y = rng.gen_range(0..client.height());
+        let mut rng = rand::rng();
+        let x = rng.random_range(0..client.width());
+        let y = rng.random_range(0..client.height());
         (x, y)
     };
     println!("star {x:3} {y:3}");
