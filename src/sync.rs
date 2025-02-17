@@ -269,7 +269,6 @@ mod embedded_graphics {
     }
 }
 
-#[allow(clippy::needless_pass_by_value)]
 fn poison_err<S>(_err: S) -> std::io::Error {
     std::io::Error::new(ErrorKind::Other, "Mutex poisoned")
 }
