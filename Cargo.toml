@@ -20,8 +20,9 @@ tokio = ["dep:tokio"]
 [lints.rust]
 unsafe_code = "forbid"
 [lints.clippy]
-pedantic = "warn"
-nursery = "warn"
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+unused_trait_names = "warn"
 
 [profile.release]
 codegen-units = 1

@@ -1,5 +1,5 @@
 use core::time::Duration;
-use std::io::{ErrorKind, Read, Write};
+use std::io::{ErrorKind, Read as _, Write as _};
 use std::net::{TcpStream, ToSocketAddrs};
 use std::sync::{Arc, Mutex};
 
@@ -188,9 +188,9 @@ impl Client {
 
 #[cfg(feature = "embedded-graphics")]
 mod embedded_graphics {
-    use embedded_graphics::geometry::{Dimensions, Size};
-    use embedded_graphics::pixelcolor::RgbColor;
-    use embedded_graphics::primitives::{PointsIter, Rectangle};
+    use embedded_graphics::geometry::{Dimensions as _, Size};
+    use embedded_graphics::pixelcolor::RgbColor as _;
+    use embedded_graphics::primitives::{PointsIter as _, Rectangle};
 
     use crate::sync::Client;
 

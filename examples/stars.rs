@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use esp_remotecontrolled_led_matrix_client::async_tokio::Client;
-use rand::Rng;
+use rand::Rng as _;
 use tokio::task;
 use tokio::time::sleep;
 

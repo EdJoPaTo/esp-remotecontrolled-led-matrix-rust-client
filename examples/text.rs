@@ -1,9 +1,9 @@
 use embedded_graphics::geometry::Point;
 use embedded_graphics::mono_font::ascii::FONT_5X7;
 use embedded_graphics::mono_font::MonoTextStyle;
-use embedded_graphics::pixelcolor::{Rgb888, RgbColor};
+use embedded_graphics::pixelcolor::{Rgb888, RgbColor as _};
 use embedded_graphics::text::Text;
-use embedded_graphics::Drawable;
+use embedded_graphics::Drawable as _;
 use esp_remotecontrolled_led_matrix_client::sync::Client;
 
 fn main() {
