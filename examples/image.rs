@@ -39,7 +39,7 @@ fn main() {
     println!("Bitmap send took {:9.2} ms", write.as_secs_f64() * 1000.0);
 }
 
-#[allow(clippy::cast_possible_truncation)]
+#[expect(clippy::cast_possible_truncation)]
 fn load_img<P>(path: P, max_width: u8, max_height: u8) -> anyhow::Result<(u8, u8, Vec<u8>)>
 where
     P: AsRef<Path>,

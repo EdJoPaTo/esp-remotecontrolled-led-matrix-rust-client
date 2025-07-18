@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use bracket_color::hsv::HSV;
 use esp_remotecontrolled_led_matrix_client::sync::Client;
-use snake_logic::{get_next_point, Point};
+use snake_logic::{Point, get_next_point};
 
 const RUN_SLEEP: Duration = Duration::from_millis(200);
 const DECAY_SLEEP: Duration = Duration::from_millis(100);
@@ -120,7 +120,7 @@ fn snake(client: &Client) -> std::io::Result<()> {
 
 /// Converts from f32 Hue to u8 rgb values
 /// * `hue` - Hue from 0.0 to 360.0
-#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+#[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 fn hue_to_rgb(hue: f32) -> (u8, u8, u8) {
     let hsv = HSV::from_f32(hue / 360.0, 1.0, 1.0);
     let rgb = hsv.to_rgb();

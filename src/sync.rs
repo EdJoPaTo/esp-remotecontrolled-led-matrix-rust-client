@@ -53,10 +53,7 @@ impl Client {
         let mut protocol_version = [0; 1];
         stream.read_exact(&mut protocol_version)?;
         if protocol_version[0] != 1 {
-            return Err(std::io::Error::new(
-                ErrorKind::Other,
-                "Protocol version is not 1",
-            ));
+            return Err(std::io::Error::other("Protocol version is not 1"));
         }
 
         let mut buf = [0; 2];
@@ -113,7 +110,7 @@ impl Client {
         stream.write_all(&[Command::Fill as u8, red, green, blue])
     }
 
-    #[allow(clippy::too_many_arguments)]
+    #[expect(clippy::too_many_arguments)]
     /// Fill the given rectangular area with one color.
     /// Do not forget to also run [`flush`](Self::flush) afterwards.
     ///
@@ -159,25 +156,17 @@ impl Client {
         height: u8,
         colors: &[u8],
     ) -> std::io::Result<()> {
-        let too_wide = x
-            .checked_add(width)
-            .map_or(true, |width| width > self.width);
+        let too_wide = x.checked_add(width).is_none_or(|width| width > self.width);
         let too_high = y
             .checked_add(height)
-            .map_or(true, |height| height > self.height);
+            .is_none_or(|height| height > self.height);
         if too_wide || too_high {
-            return Err(std::io::Error::new(
-                ErrorKind::Other,
-                "area too big for display",
-            ));
+            return Err(std::io::Error::other("area too big for display"));
         }
 
         let expected_length = (width as usize) * (height as usize) * 3;
         if expected_length != colors.len() {
-            return Err(std::io::Error::new(
-                ErrorKind::Other,
-                "colors is wrong length",
-            ));
+            return Err(std::io::Error::other("colors is wrong length"));
         }
 
         let mut stream = self.stream.lock().map_err(poison_err)?;
@@ -200,7 +189,7 @@ mod embedded_graphics {
         }
     }
 
-    #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+    #[expect(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
     impl embedded_graphics::draw_target::DrawTarget for Client {
         type Color = embedded_graphics::pixelcolor::Rgb888;
         type Error = std::io::Error;
@@ -270,5 +259,5 @@ mod embedded_graphics {
 }
 
 fn poison_err<S>(_err: S) -> std::io::Error {
-    std::io::Error::new(ErrorKind::Other, "Mutex poisoned")
+    std::io::Error::other("Mutex poisoned")
 }

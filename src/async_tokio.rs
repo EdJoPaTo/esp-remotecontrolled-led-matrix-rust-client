@@ -28,10 +28,7 @@ impl Client {
         let mut protocol_version = [0; 1];
         stream.read_exact(&mut protocol_version).await?;
         if protocol_version[0] != 1 {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "Protocol version is not 1",
-            ));
+            return Err(std::io::Error::other("Protocol version is not 1"));
         }
 
         let mut buf = [0; 2];
@@ -94,7 +91,7 @@ impl Client {
             .await
     }
 
-    #[allow(clippy::too_many_arguments)]
+    #[expect(clippy::too_many_arguments)]
     /// Fill the given rectangular area with one color.
     /// Do not forget to also run [`flush`](Self::flush) afterwards.
     ///
@@ -143,25 +140,17 @@ impl Client {
         height: u8,
         colors: &[u8],
     ) -> std::io::Result<()> {
-        let too_wide = x
-            .checked_add(width)
-            .map_or(true, |width| width > self.width);
+        let too_wide = x.checked_add(width).is_none_or(|width| width > self.width);
         let too_high = y
             .checked_add(height)
-            .map_or(true, |height| height > self.height);
+            .is_none_or(|height| height > self.height);
         if too_wide || too_high {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "area too big for display",
-            ));
+            return Err(std::io::Error::other("area too big for display"));
         }
 
         let expected_length = (width as usize) * (height as usize) * 3;
         if expected_length != colors.len() {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "colors is wrong length",
-            ));
+            return Err(std::io::Error::other("colors is wrong length"));
         }
 
         let mut stream = self.stream.lock().await;

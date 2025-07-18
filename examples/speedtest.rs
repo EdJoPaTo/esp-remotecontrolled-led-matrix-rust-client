@@ -29,7 +29,7 @@ fn main() {
     }
 }
 
-#[allow(clippy::cast_precision_loss)]
+#[expect(clippy::cast_precision_loss)]
 fn speedtest(client: &Client) -> std::io::Result<()> {
     let total_pixels = client.total_pixels() as usize;
     let start = Instant::now();

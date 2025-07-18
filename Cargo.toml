@@ -5,8 +5,8 @@ version = "0.1.0"
 license = "MIT"
 repository = "https://github.com/EdJoPaTo/esp-remotecontrolled-led-matrix-rust-client"
 authors = ["EdJoPaTo <esp-remotecontrolled-led-matrix-rust-client@edjopato.de>"]
-edition = "2021"
-rust-version = "1.70"
+edition = "2024"
+rust-version = "1.85"
 keywords = ["led", "matrix", "ws2812", "remotecontrolled"]
 categories = ["api-bindings", "network-programming"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -19,9 +19,12 @@ tokio = ["dep:tokio"]
 
 [lints.rust]
 unsafe_code = "forbid"
+unused_qualifications = "warn"
 [lints.clippy]
 pedantic = { level = "warn", priority = -1 }
 nursery = { level = "warn", priority = -1 }
+allow_attributes = "warn"
+min_ident_chars = "warn"
 unused_trait_names = "warn"
 
 [profile.release]
