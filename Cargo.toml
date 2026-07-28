@@ -40,13 +40,13 @@ tokio = { version = "1.0.1", optional = true, features = ["io-util", "net", "syn
 anyhow = "1.0.58"
 bracket-color = "0.8.7"
 image = "0.25.2"
-rand = "0.9.0"
+rand = "0.10.0"
 tokio = { version = "1.0.1", features = ["full"] }
 
 [dev-dependencies.snake-logic]
 # path = "../snake-logic"
 git = "https://github.com/EdJoPaTo/snake-logic"
-tag = "v0.4.1"
+tag = "v0.5.0"
 features = ["rand"]
 
 [[example]]
